@@ -1,12 +1,10 @@
 const html = `
-  <div id="kata-ui">
-    <div id="kata-header">
-      <strong>DeltaBot</strong>
-      <button id="kata-close">×</button>
-    </div>
-    <div id="kata-body">
-      <button id="kata-start">Start Bot</button>
-    </div>
+  <div id="kata-header">
+    <strong>DeltaBot</strong>
+    <button id="kata-close">×</button>
+  </div>
+  <div id="kata-body">
+    <button id="kata-start">Start Bot</button>
   </div>
 `;
 
@@ -44,6 +42,7 @@ const css = `
 `;
 
 const container = document.createElement("div");
+container.id = "kata-ui"; // Important!
 container.innerHTML = html;
 document.body.appendChild(container);
 
@@ -57,4 +56,5 @@ document.getElementById("kata-close").onclick = () => {
 };
 
 document.getElementById("kata-start").onclick = () => {
+  alert('Bot started!');
 };
