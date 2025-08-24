@@ -1,5 +1,3 @@
-if (document.getElementById("kata-ui")) return;
-
 const html = `
   <div id="kata-ui">
     <div id="kata-header">
