@@ -1,6 +1,8 @@
 // === kata.js ===
 
 (function() {
+  console.log("kata script loaded");
+
   const html = `
     <div id="kata-ui">
       <div id="kata-header">
