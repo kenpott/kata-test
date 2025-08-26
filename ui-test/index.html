@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="popup">
+      <div class="topbar">
+        <div class="left">
+          <h1>term</h1>
+          <p class="plan Free">Free</p>
+        </div>
+        <a class="status online"></a>
+      </div>
+      <div class="content">
+        <ul>
+          <li>
+            <div class="setting active" id="auto-solve">
+              <h4>Auto Solve</h4>
+              <label class="switch">
+                <input type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="sub-settings"></div>
+          </li>
+          <li>
+            <div class="setting active" id="auto-answer">
+              <h4>Auto Answer</h4>
+              <label class="switch">
+                <input type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="sub-settings active" id="delay">
+              <div class="sub-setting">
+                <div class="range-header">
+                  <h5>Delay (s)</h5>
+                  <span class="level-value">0.5</span>
+                </div>
+                <div class="range">
+                  <input
+                    type="range"
+                    class="level"
+                    min="0"
+                    max="10"
+                    value="5"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="footer">
+        <p>press ctrl to hide</p>
+      </div>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
