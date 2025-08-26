@@ -8,43 +8,46 @@
   </head>
   <body>
     <div class="popup">
-      <div class="topbar">
-        <div class="left">
-          <h1>term</h1>
-          <p class="plan Free">Free</p>
+      <div class="popup-topbar">
+        <div class="popup-left">
+          <h1 class="popup-title">term</h1>
+          <p class="popup-plan plan Free">Free</p>
         </div>
-        <a class="status online"></a>
+        <a class="popup-status status online"></a>
       </div>
-      <div class="content">
-        <ul>
-          <li>
-            <div class="setting active" id="auto-solve">
-              <h4>Auto Solve</h4>
-              <label class="switch">
-                <input type="checkbox" />
-                <span class="slider"></span>
+
+      <div class="popup-content">
+        <ul class="popup-list">
+          <li class="popup-list-item">
+            <div class="popup-setting setting active" id="auto-solve">
+              <h4 class="popup-setting-title">Auto Solve</h4>
+              <label class="popup-switch switch">
+                <input type="checkbox" class="popup-checkbox" />
+                <span class="popup-slider slider"></span>
               </label>
             </div>
-            <div class="sub-settings"></div>
+            <div class="popup-sub-settings sub-settings"></div>
           </li>
-          <li>
-            <div class="setting active" id="auto-answer">
-              <h4>Auto Answer</h4>
-              <label class="switch">
-                <input type="checkbox" />
-                <span class="slider"></span>
+
+          <li class="popup-list-item">
+            <div class="popup-setting setting active" id="auto-answer">
+              <h4 class="popup-setting-title">Auto Answer</h4>
+              <label class="popup-switch switch">
+                <input type="checkbox" class="popup-checkbox" />
+                <span class="popup-slider slider"></span>
               </label>
             </div>
-            <div class="sub-settings active" id="delay">
-              <div class="sub-setting">
-                <div class="range-header">
-                  <h5>Delay (s)</h5>
-                  <span class="level-value">0.5</span>
+
+            <div class="popup-sub-settings sub-settings active" id="delay">
+              <div class="popup-sub-setting sub-setting">
+                <div class="popup-range-header range-header">
+                  <h5 class="popup-range-title">Delay (s)</h5>
+                  <span class="popup-level-value level-value">0.5</span>
                 </div>
-                <div class="range">
+                <div class="popup-range range">
                   <input
                     type="range"
-                    class="level"
+                    class="popup-range-input level"
                     min="0"
                     max="10"
                     value="5"
@@ -56,10 +59,12 @@
           </li>
         </ul>
       </div>
-      <div class="footer">
-        <p>press ctrl to hide</p>
+
+      <div class="popup-footer">
+        <p class="popup-footer-text">press ctrl to hide</p>
       </div>
     </div>
+
     <script src="index.js"></script>
   </body>
 </html>
