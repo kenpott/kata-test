@@ -116,6 +116,8 @@
   border: 2px solid var(--color-border);
   background: var(--color-popup);
   position: absolute;
+  top: 20px;
+  left: 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
