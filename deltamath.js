@@ -2,7 +2,7 @@
   console.log("kata script loaded");
 
   const html = `
-<div class="kata-popup">
+<div class="popup">
   <div class="topbar">
     <div class="left">
       <h1>term</h1>
@@ -58,7 +58,7 @@
   `;
 
   const style = `
-.kata-popup {
+.popup {
   all: initial;
   font-family: Arial, sans-serif;
   width: 260px;
