@@ -109,17 +109,6 @@
   --slider-value-gap: 12px;
 }
 
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--color-bg);
-  font-family: var(--font-family);
-  color: var(--color-text);
-}
-
 .popup {
   width: var(--popup-width);
   height: var(--popup-height);
