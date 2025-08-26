@@ -80,7 +80,7 @@ body {
   pointer-events: none;
 }
 
-.topbar h1 {
+.topbar .title {
   font-size: var(--font-size-h1);
 }
 
@@ -134,14 +134,14 @@ body {
   padding: 0 16px;
 }
 
-.content ul {
+.content .settings-list {
   list-style-type: none;
   width: 100%;
   padding: 0;
   margin: 0;
 }
 
-.content ul li {
+.content .settings-item {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -158,7 +158,7 @@ body {
   display: flex;
 }
 
-.setting h4 {
+.setting .setting-title {
   margin: 8px 0;
   color: var(--color-text);
 }
@@ -174,10 +174,6 @@ body {
 
 .sub-settings.active {
   display: block;
-}
-
-.sub-settings h5 {
-  margin: 0;
 }
 
 .footer {
@@ -248,7 +244,7 @@ input:checked + .slider::after {
   align-items: center;
 }
 
-.range-header h5 {
+.range-header .range-title {
   margin: 0;
   font-size: 0.85em;
 }

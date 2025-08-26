@@ -7,47 +7,47 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="popup">
-      <div class="popup-topbar">
-        <div class="popup-left">
-          <h1 class="popup-title">term</h1>
-          <p class="popup-plan plan Free">Free</p>
+    <div class="popup" id="popup">
+      <div class="topbar">
+        <div class="left">
+          <h1 class="title">term</h1>
+          <p class="plan Free">Free</p>
         </div>
-        <a class="popup-status status online"></a>
+        <a class="status online" id="status"></a>
       </div>
 
-      <div class="popup-content">
-        <ul class="popup-list">
-          <li class="popup-list-item">
-            <div class="popup-setting setting active" id="auto-solve">
-              <h4 class="popup-setting-title">Auto Solve</h4>
-              <label class="popup-switch switch">
-                <input type="checkbox" class="popup-checkbox" />
-                <span class="popup-slider slider"></span>
+      <div class="content">
+        <ul class="settings-list">
+          <li class="settings-item">
+            <div class="setting active" id="auto-solve">
+              <h4 class="setting-title">Auto Solve</h4>
+              <label class="switch">
+                <input type="checkbox" id="checkbox-auto-solve" />
+                <span class="slider"></span>
               </label>
             </div>
-            <div class="popup-sub-settings sub-settings"></div>
           </li>
 
-          <li class="popup-list-item">
-            <div class="popup-setting setting active" id="auto-answer">
-              <h4 class="popup-setting-title">Auto Answer</h4>
-              <label class="popup-switch switch">
-                <input type="checkbox" class="popup-checkbox" />
-                <span class="popup-slider slider"></span>
+          <li class="settings-item">
+            <div class="setting active" id="auto-answer">
+              <h4 class="setting-title">Auto Answer</h4>
+              <label class="switch">
+                <input type="checkbox" id="checkbox-auto-answer" />
+                <span class="slider"></span>
               </label>
             </div>
 
-            <div class="popup-sub-settings sub-settings active" id="delay">
-              <div class="popup-sub-setting sub-setting">
-                <div class="popup-range-header range-header">
-                  <h5 class="popup-range-title">Delay (s)</h5>
-                  <span class="popup-level-value level-value">0.5</span>
+            <div class="sub-settings active" id="delay-settings">
+              <div class="sub-setting">
+                <div class="range-header">
+                  <h5 class="range-title">Delay (s)</h5>
+                  <span class="level-value" id="delay-value">0.5</span>
                 </div>
-                <div class="popup-range range">
+                <div class="range">
                   <input
                     type="range"
-                    class="popup-range-input level"
+                    class="level"
+                    id="delay-slider"
                     min="0"
                     max="10"
                     value="5"
@@ -60,8 +60,8 @@
         </ul>
       </div>
 
-      <div class="popup-footer">
-        <p class="popup-footer-text">press ctrl to hide</p>
+      <div class="footer">
+        <p class="footer-text">press ctrl to hide</p>
       </div>
     </div>
 
