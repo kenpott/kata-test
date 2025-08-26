@@ -115,7 +115,7 @@
   border-radius: var(--popup-radius);
   border: 2px solid var(--color-border);
   background: var(--color-popup);
-  position: relative;
+  position: absolute;
   overflow: hidden;
   display: flex;
   flex-direction: column;
