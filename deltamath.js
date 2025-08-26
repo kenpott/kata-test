@@ -121,6 +121,11 @@
   flex-direction: column;
 }
 
+.popup * {
+  all: unset;
+  box-sizing: border-box;
+  }
+
 .topbar {
   flex: 0 0 5%;
   display: flex;
