@@ -5,7 +5,7 @@
 <div class="popup">
   <div class="topbar">
     <div class="left">
-      <h1 class="title">term</h1>
+      <h1 class="title">kata</h1>
       <p class="plan Free">Free</p>
     </div>
     <a class="status online"></a>
@@ -241,7 +241,6 @@
   justify-content: center;
   color: var(--color-text-disabled);
   font-size: 0.8em;
-  font-weight: bold;
   pointer-events: none;
   padding: 10px 0;
 }
