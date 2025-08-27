@@ -401,7 +401,7 @@
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
-      const delay_text = document.querySelector("levelValue");
+      const delay_text = document.querySelector(".levelValue");
       delay_text.textContent = level;
     });
   }
