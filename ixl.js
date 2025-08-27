@@ -34,12 +34,13 @@
           <div class="container">
             <div class="rangeHeader">
               <h5 class="title">Delay (s)</h5>
-              <span class="levelValue">0.5</span>
+              <span class="levelValue" id="delayValue">0.5</span>
             </div>
             <div class="range">
               <input
                 type="range"
                 class="rangeInput"
+                id="delay"
                 min="0"
                 max="10"
                 value="5"
@@ -52,12 +53,13 @@
           <div class="container">
             <div class="rangeHeader">
               <h5 class="title">SmartScore</h5>
-              <span class="levelValue">80</span>
+              <span class="levelValue" id="smartScoreValue">80</span>
             </div>
             <div class="range">
               <input
                 type="range"
                 class="rangeInput"
+                id="smartScore"
                 min="0"
                 max="100"
                 value="80
@@ -381,7 +383,8 @@
     const status_dislay = document.querySelector(".status");
     const autoSolve_toggle = document.querySelector("#auto-solve");
     const autoAnswer_toggle = document.querySelector("#auto-answer");
-    const delay_input = document.querySelector(".rangeInput");
+    const delay_input = document.querySelector("#delay");
+    const smartScore_input = document.querySelectorAll("#smartScore");
 
     const toggleHandlers = {
       autoSolve: (enabled) => {
@@ -416,8 +419,14 @@
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
-      const delay_text = document.querySelector(".levelValue");
+      const delay_text = document.querySelector("#delayValue");
       delay_text.textContent = level;
+    });
+
+    smartScore_input.addEventListener("input", (event) => {
+      const level = event.target.value;
+      const score_text = document.querySelectorAll("#smartScoreValue");
+      score_text.textContent = level;
     });
   }
 })();

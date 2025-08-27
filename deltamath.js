@@ -34,12 +34,13 @@
           <div class="container">
             <div class="rangeHeader">
               <h5 class="title">Delay (s)</h5>
-              <span class="levelValue">0.5</span>
+              <span class="levelValue id="delayValue">0.5</span>
             </div>
             <div class="range">
               <input
                 type="range"
                 class="rangeInput"
+                id="delayInput"
                 min="0"
                 max="10"
                 value="5"
@@ -364,7 +365,7 @@
     const status_dislay = document.querySelector(".status");
     const autoSolve_toggle = document.querySelector("#auto-solve");
     const autoAnswer_toggle = document.querySelector("#auto-answer");
-    const delay_input = document.querySelector(".rangeInput");
+    const delay_input = document.querySelector("#delayInput");
 
     const toggleHandlers = {
       autoSolve: (enabled) => {
@@ -399,7 +400,7 @@
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
-      const delay_text = document.querySelector(".levelValue");
+      const delay_text = document.querySelector("#delayValue");
       delay_text.textContent = level;
     });
   }
