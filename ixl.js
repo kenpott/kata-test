@@ -148,7 +148,7 @@
 .popup .topbar {
   flex: 0 0 5%;
   display: flex;
-  padding: 10px 22px 10px 16px;
+  padding: 0px 22px 0px 16px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -221,7 +221,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 4px 0;
 }
 
 .popup .setting {
@@ -260,7 +259,6 @@
   color: var(--color-text-disabled);
   font-size: 0.8em;
   pointer-events: none;
-  padding: 10px 0;
 }
 
 .popup .switch {

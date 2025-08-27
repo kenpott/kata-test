@@ -203,7 +203,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 4px 0;
 }
 
 .popup .setting {
