@@ -106,7 +106,7 @@
   --slider-value-color: #cfcfcf;
   --slider-value-gap: 12px;
 
-  all: revert;
+  all: initial;
   font-family: var(--font-family);
   padding: 0;
   margin: 0;
@@ -243,6 +243,7 @@
   font-size: 0.8em;
   font-weight: bold;
   pointer-events: none;
+  padding: 10px 0;
 }
 
 .popup .switch {
