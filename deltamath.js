@@ -226,7 +226,6 @@
   display: none;
   margin-top: 4px;
   padding-left: 24px;
-  font-weight: bold;
 }
 
 .popup .subSettings.active {
