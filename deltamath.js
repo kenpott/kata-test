@@ -108,6 +108,8 @@
 
   all: revert;
   font-family: var(--font-family);
+  padding: 0;
+  margin: 0;
   
   width: var(--popup-width);
   height: var(--popup-height);
@@ -128,7 +130,7 @@
 .popup .topbar {
   flex: 0 0 5%;
   display: flex;
-  padding: 0px 22px 0px 16px;
+  padding: 10px 22px 10px 16px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -323,6 +325,7 @@
   cursor: pointer;
   overflow: hidden;
   transition: height var(--slider-transition);
+  border: none;
 }
 
 .popup .range .rangeInput::-webkit-slider-thumb {
