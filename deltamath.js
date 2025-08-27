@@ -60,7 +60,7 @@
   const style = `
   .popup {
   /* reset + isolation */
-  all: initial;
+  all: none;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
 
