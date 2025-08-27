@@ -3,43 +3,43 @@
 
   const html = `
 <div class="popup">
-  <div class="popup-topbar">
-    <div class="popup-left">
-      <h1 class="popup-title">term</h1>
-      <p class="popup-plan popup-plan-free">Free</p>
+  <div class="topbar">
+    <div class="left">
+      <h1 class="title">term</h1>
+      <p class="plan Free">Free</p>
     </div>
-    <a class="popup-status popup-status-online"></a>
+    <a class="status online"></a>
   </div>
-  <div class="popup-content">
-    <ul class="popup-list">
-      <li class="popup-list-item">
-        <div class="popup-setting active" id="auto-solve">
-          <h4 class="popup-setting-title">Auto Solve</h4>
-          <label class="popup-switch">
-            <input type="checkbox" class="popup-checkbox" />
-            <span class="popup-slider"></span>
+  <div class="content">
+    <ul class="list">
+      <li class="item">
+        <div class="setting active" id="auto-solve">
+          <h4 class="title">Auto Solve</h4>
+          <label class="switch">
+            <input type="checkbox" class="toggle" />
+            <span class="slider"></span>
           </label>
         </div>
-        <div class="popup-sub-settings"></div>
+        <div class="subSettings"></div>
       </li>
-      <li class="popup-list-item">
-        <div class="popup-setting active" id="auto-answer">
-          <h4 class="popup-setting-title">Auto Answer</h4>
-          <label class="popup-switch">
-            <input type="checkbox" class="popup-checkbox" />
-            <span class="popup-slider"></span>
+      <li class="item">
+        <div class="setting active" id="auto-answer">
+          <h4 class="title">Auto Answer</h4>
+          <label class="switch">
+            <input type="checkbox" class="toggle" />
+            <span class="slider"></span>
           </label>
         </div>
-        <div class="popup-sub-settings active" id="delay">
-          <div class="popup-sub-setting">
-            <div class="popup-range-header">
-              <h5 class="popup-range-title">Delay (s)</h5>
-              <span class="popup-level-value">0.5</span>
+        <div class="subSettings active" id="delay">
+          <div class="container">
+            <div class="rangeHeader">
+              <h5 class="title">Delay (s)</h5>
+              <span class="levelValue">0.5</span>
             </div>
-            <div class="popup-range">
+            <div class="range">
               <input
                 type="range"
-                class="popup-range-input"
+                class="rangeInput"
                 min="0"
                 max="10"
                 value="5"
@@ -51,62 +51,64 @@
       </li>
     </ul>
   </div>
-  <div class="popup-footer">
-    <p class="popup-footer-text">press ctrl to hide</p>
+  <div class="footer">
+    <p class="text">press ctrl to hide</p>
   </div>
 </div>
   `;
 
   const style = `
   .popup {
-  /* CSS Variables scoped to popup */
-  --color-bg: #1c1c1c;
-  --color-popup: #2a2a2a;
-  --color-border: #3a3a3a;
-  --color-text: #ffffff; 
+    --color-bg: #1c1c1c;
+  --color-popup: #1e1e1e;
+  --color-border: #2a2a2a;
+  --color-text: #cfcfcf; 
   --color-text-secondary: #a3a3a3; 
-  --color-text-tertiary: #666666;
-  --color-text-disabled: #555555;
+  --color-text-tertiary: #444444;
+  --color-text-disabled: #3a3a3a;
 
-  --color-free-bg: #4a4a4a;
-  --color-free-border: #4a4a4a;
+  --color-free-bg: #3a3a3a;
+  --color-free-border: #3a3a3a;
   --color-premium-bg: #8b5cf6;
   --color-premium-border: #8b5cf6;
 
-  --color-status-online: #10b981;
+  --color-status-online: #34d399;
   --color-status-offline: #ef4444;
   --color-status-idle: #6b7280;
 
   --color-accent: #8b5cf6;
-  --color-switch-on: #8b5cf6;
-  --color-switch-off: #4a4a4a;
-  --color-switch-knob: #ffffff;
+  --color-accent-hover: #7c3aed;
+  --color-accent-light: #c4b5fd;
 
-  --popup-width: 280px;
-  --popup-height: 320px;
-  --popup-radius: 20px;
+  --popup-width: 260px;
+  --popup-height: 300px;
+  --popup-radius: 16px;
 
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-size-title: 1.4em;
-  --font-size-plan: 0.8em;
-  --font-size-setting: 1.1em;
-  --font-size-subsetting: 0.9em;
-  --font-size-footer: 0.85em;
+  --font-family: Arial, sans-serif;
+  --font-size-h1: 1.2em;
+  --font-size-plan: 0.9em;
 
-  --switch-width: 44px;
-  --switch-height: 24px;
-  --switch-knob: 20px;
+  --switch-width: 28px;
+  --switch-height: 1em;
+  --switch-knob: 12px;
   --switch-offset: 2px;
+  --color-switch-off: #3a3a3a;
+  --color-switch-knob: #8b5cf6;
+  --color-switch-on: #8b5cf6;
+  --color-switch-knob-active: #3a3a3a;
 
-  --slider-height: 4px;
-  --slider-bg: #4a4a4a;
+  --slider-width: 70%;
+  --slider-height: 6px;
+  --slider-bg: rgb(82, 82, 82);
+  --slider-border-radius: 999px;
   --slider-fill-color: #8b5cf6;
+  --slider-transition: 0.1s;
+  --slider-value-color: #cfcfcf;
+  --slider-value-gap: 12px;
 
-  /* Reset and isolate the popup */
-  all: initial;
+  all: revert;
   font-family: var(--font-family);
   
-  /* Popup styling */
   width: var(--popup-width);
   height: var(--popup-height);
   border-radius: var(--popup-radius);
@@ -115,75 +117,58 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: 999999;
   color: var(--color-text);
   box-sizing: border-box;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-.popup * {
-  box-sizing: border-box;
 }
 
 .popup .topbar {
-  flex: 0 0 auto;
+  flex: 0 0 5%;
   display: flex;
-  padding: 20px 24px 16px 24px;
+  padding: 0px 22px 0px 16px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin: 0;
+  pointer-events: none;
 }
 
 .popup .topbar .left {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
+  gap: 8px;
 }
 
 .popup .topbar .title {
-  font-size: var(--font-size-title);
-  margin: 0;
-  padding: 0;
-  font-weight: 500;
-  color: var(--color-text);
+  font-size: var(--font-size-h1);
+  font-weight: bold;
 }
 
 .popup .topbar .plan {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  padding: 4px 8px;
+  display: flex;
+  border-radius: 8px;
+  padding: 2px 4px;
   font-size: var(--font-size-plan);
-  font-weight: 600;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: bolder;
 }
 
 .popup .plan.Free {
   background-color: var(--color-free-bg);
+  border: 3px solid var(--color-free-border);
   color: var(--color-text);
 }
 
 .popup .plan.Plus {
   background-color: var(--color-premium-bg);
-  color: white;
+  border: 3px solid var(--color-premium-border);
+  color: var(--color-bg);
 }
 
 .popup .status {
-  border-radius: 50%;
-  width: 12px;
-  height: 12px;
-  margin: 0;
-  padding: 0;
+  border-radius: 16px;
+  padding: 5px;
 }
 
 .popup .status.online {
@@ -202,69 +187,60 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
-  margin: 0;
-  overflow-y: auto;
+  padding: 0 16px;
 }
 
-.popup .content .settings-list {
+.popup .content .list {
   list-style-type: none;
   width: 100%;
   padding: 0;
   margin: 0;
 }
 
-.popup .content .settings-item {
+.popup .content .item {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0;
-  margin: 0 0 20px 0;
+  padding: 4px 0;
 }
 
 .popup .setting {
   display: none;
   justify-content: space-between;
   align-items: center;
-  margin: 0;
-  padding: 0;
-  min-height: 32px;
 }
 
 .popup .setting.active {
   display: flex;
 }
 
-.popup .setting .setting-title {
-  margin: 0;
-  padding: 0;
+.popup .setting .title {
+  margin: 8px 0;
   color: var(--color-text);
-  font-weight: 500;
-  font-size: var(--font-size-setting);
 }
 
-.popup .sub-settings {
-  font-size: var(--font-size-subsetting);
+.popup .subSettings {
+  font-size: 0.85em;
   color: var(--color-text-secondary);
   display: none;
-  margin-top: 12px;
-  padding: 0;
-  font-weight: 500;
+  margin-top: 4px;
+  padding-left: 24px;
+  font-weight: bold;
 }
 
-.popup .sub-settings.active {
+.popup .subSettings.active {
   display: block;
 }
 
 .popup .footer {
-  flex: 0 0 auto;
+  flex: 0 0 5%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-disabled);
-  font-size: var(--font-size-footer);
-  margin: 0;
-  padding: 16px 24px 20px 24px;
+  font-size: 0.8em;
+  font-weight: bold;
+  pointer-events: none;
 }
 
 .popup .switch {
@@ -272,14 +248,10 @@
   display: inline-block;
   width: var(--switch-width);
   height: var(--switch-height);
-  margin: 0;
-  padding: 0;
 }
 
-.popup .switch input {
+.popup .switch .toggle {
   display: none;
-  margin: 0;
-  padding: 0;
 }
 
 .popup .slider {
@@ -291,10 +263,7 @@
   bottom: 0;
   background: var(--color-switch-off);
   border-radius: var(--switch-height);
-  transition: background 0.2s ease;
-  margin: 0;
-  padding: 0;
-  border: none;
+  transition: background 0.3s, box-shadow 0.3s;
 }
 
 .popup .slider::after {
@@ -303,87 +272,74 @@
   width: var(--switch-knob);
   height: var(--switch-knob);
   left: var(--switch-offset);
-  top: var(--switch-offset);
+  top: calc((var(--switch-height) - var(--switch-knob)) / 2);
   background: var(--color-switch-knob);
   border-radius: 50%;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s, background 0.3s;
 }
 
-.popup input:checked + .slider {
+.popup .toggle:checked + .slider {
   background: var(--color-switch-on);
 }
 
-.popup input:checked + .slider::after {
-  transform: translateX(calc(var(--switch-width) - var(--switch-knob) - var(--switch-offset) * 2));
+.popup .toggle:checked + .slider::after {
+  transform: translateX(
+    calc(var(--switch-width) - var(--switch-knob) - var(--switch-offset) * 2)
+  );
+  background: var(--color-switch-knob-active);
 }
 
 .popup .range {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 0;
-  padding: 0;
 }
 
-.popup .range-header {
+.popup .rangeHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 8px 0;
-  padding: 0;
 }
 
-.popup .range-header .range-title {
+.popup .rangeHeader .title {
   margin: 0;
-  padding: 0;
-  font-size: var(--font-size-subsetting);
-  font-weight: 500;
-  color: var(--color-text-secondary);
+  font-size: 0.85em;
 }
 
-.popup .range-header .level-value {
+.popup .rangeHeader .levelValue {
   min-width: 2ch;
-  font-size: var(--font-size-subsetting);
+  font-size: 0.85em;
   text-align: right;
-  margin: 0;
-  padding: 0;
-  color: var(--color-text);
-  font-weight: 500;
 }
 
-.popup .range .level {
+.popup .range .rangeInput {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   width: 100%;
   height: var(--slider-height);
   background: var(--slider-bg);
-  border-radius: calc(var(--slider-height) / 2);
+  border-radius: var(--slider-border-radius);
   cursor: pointer;
   overflow: hidden;
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
+  transition: height var(--slider-transition);
 }
 
-.popup .range .level::-webkit-slider-thumb {
+.popup .range .rangeInput::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 0;
   height: 0;
-  box-shadow: -300px 0 0 300px var(--slider-fill-color);
-  border: none;
+  box-shadow: -200px 0 0 200px var(--slider-fill-color);
 }
 
-.popup .range .level::-moz-range-thumb {
+.popup .range .rangeInput::-moz-range-thumb {
   width: 0;
   height: 0;
-  box-shadow: -300px 0 0 300px var(--slider-fill-color);
+  box-shadow: -200px 0 0 200px var(--slider-fill-color);
   border: none;
-  background: transparent;
 }
 
-.popup .range .level:focus {
+.popup .range .rangeInput:focus {
   outline: none;
 }
   `;
@@ -404,4 +360,3 @@
     document.head.appendChild(styleEl);
   }
 })();
-

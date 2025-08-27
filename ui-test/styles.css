@@ -82,6 +82,7 @@ body {
 
 .topbar .title {
   font-size: var(--font-size-h1);
+  font-weight: bold;
 }
 
 .topbar .left {
