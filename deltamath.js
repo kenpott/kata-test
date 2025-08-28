@@ -1,8 +1,20 @@
 (function () {
   console.log("kata script loaded");
 
+  const settings = {
+    autoSolve: {
+      enabled: false,
+    },
+    autoAnswer: {
+      enabled: false,
+      subsettings: {
+        delay: 5.0,
+      },
+    },
+  };
+
   const html = `
-<div class="popup">
+<div class="popup active">
   <div class="topbar">
     <div class="left">
       <h1 class="title">kata</h1>
@@ -16,7 +28,7 @@
         <div class="setting active" id="auto-solve">
           <h4 class="title">Auto Solve</h4>
           <label class="switch">
-            <input type="checkbox" class="toggle" />
+            <input type="checkbox" class="toggle" id="autoSolveCheckbox"/>
             <span class="slider"></span>
           </label>
         </div>
@@ -26,7 +38,7 @@
         <div class="setting active" id="auto-answer">
           <h4 class="title">Auto Answer</h4>
           <label class="switch">
-            <input type="checkbox" class="toggle" />
+            <input type="checkbox" class="toggle" id="autoAnswerCheckbox"/>
             <span class="slider"></span>
           </label>
         </div>
@@ -34,7 +46,7 @@
           <div class="container">
             <div class="rangeHeader">
               <h5 class="title">Delay (s)</h5>
-              <span class="levelValue id="delayValue">0.5</span>
+              <span class="levelValue id="delayValue">5.0</span>
             </div>
             <div class="range">
               <input
@@ -121,15 +133,20 @@
   top: 50%;
   left: 50%;
   overflow: hidden;
-  display: flex;
+  display: none;
   flex-direction: column;
   z-index: 999999;
   color: var(--color-text);
   box-sizing: border-box;
 }
 
+.popup.active {
+  display: flex;
+}
+
 .popup .topbar {
   flex: 0 0 5%;
+  height: 46.5px;
   display: flex;
   padding: 10px 22px 10px 16px;
   flex-direction: row;
@@ -147,6 +164,7 @@
 .popup .topbar .title {
   font-size: var(--font-size-h1);
   font-weight: bold;
+  pointer-events: none;
 }
 
 .popup .topbar .plan {
@@ -188,6 +206,7 @@
 
 .popup .content {
   flex: 1;
+  height: 217px;
   display: flex;
   flex-direction: column;
   padding: 0 16px;
@@ -219,6 +238,7 @@
 .popup .setting .title {
   margin: 8px 0;
   color: var(--color-text);
+  pointer-events: none;
 }
 
 .popup .subSettings {
@@ -235,6 +255,7 @@
 
 .popup .footer {
   flex: 0 0 5%;
+  height: 34.5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,12 +326,14 @@
 .popup .rangeHeader .title {
   margin: 0;
   font-size: 0.85em;
+  pointer-events: none;
 }
 
 .popup .rangeHeader .levelValue {
   min-width: 2ch;
   font-size: 0.85em;
   text-align: right;
+  pointer-events: none;
 }
 
 .popup .range .rangeInput {
@@ -354,6 +377,8 @@
   }
 
   function init() {
+    xhrInterceptor();
+
     const container = document.createElement("div");
     container.innerHTML = html;
     document.body.appendChild(container);
@@ -362,10 +387,11 @@
     styleEl.textContent = style;
     document.head.appendChild(styleEl);
 
+    const popup = document.querySelector(".popup");
     const status_dislay = document.querySelector(".status");
     const autoSolve_toggle = document.querySelector("#auto-solve");
     const autoAnswer_toggle = document.querySelector("#auto-answer");
-    const delay_input = document.querySelector("#delayInput");
+    const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
       autoSolve: (enabled) => {
@@ -388,22 +414,105 @@
 
     //
 
+    dragElement(popup);
+
+    function dragElement(elmnt) {
+      var pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+      elmnt.onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        if (
+          e.target.tagName === "INPUT" ||
+          e.target.tagName === "TEXTAREA" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.isContentEditable
+        ) {
+          return;
+        }
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Control") {
+        document.querySelector(".popup").classList.toggle("active");
+      }
+    });
+
     autoSolve_toggle.addEventListener("change", (event) => {
       const enabled = event.target.checked;
+      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
+        autoAnswerCheckbox.checked = false;
+      }
+      settings.autoSolve.enabled = enabled;
       toggleHandlers.autoSolve(enabled);
     });
 
     autoAnswer_toggle.addEventListener("change", (event) => {
+      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
       const enabled = event.target.checked;
+      autoSolveCheckbox.checked = enabled;
+      settings.autoAnswer.enabled = enabled;
+      settings.autoSolve.enabled = enabled;
       toggleHandlers.autoAnswer(enabled);
     });
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
       const delay_text = document.querySelector("#delayValue");
+      settings.autoAnswer.subsettings.delay = parseFloat(level);
       delay_text.textContent = level;
     });
   }
-})();
 
-// use mathjax
+  function xhrInterceptor() {
+    if (window.__xhrInterceptorActive) return;
+    window.__xhrInterceptorActive = true;
+
+    const origOpen = XMLHttpRequest.prototype.open;
+    const origSend = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+      this._url = url;
+      return origOpen.call(this, method, url, ...rest);
+    };
+    XMLHttpRequest.prototype.send = function (body) {
+      this.addEventListener("load", function () {
+        if (this._url.includes("problemByAssignment")) {
+          console.log("🎯 Detected XHR request:", this._url);
+          try {
+            const data = JSON.parse(this.responseText);
+            console.log("📦 Problem data:", data);
+          } catch {
+            console.log("⚠️ Could not parse response as JSON");
+          }
+        }
+      });
+      return origSend.call(this, body);
+    };
+  }
+})();
