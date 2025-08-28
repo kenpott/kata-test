@@ -1,5 +1,5 @@
 (function () {
-  console.log("kata script loaded");
+  console.log("term script loaded");
 
   const settings = {
     autoSolve: {
@@ -17,7 +17,7 @@
 <div class="popup active">
   <div class="topbar">
     <div class="left">
-      <h1 class="title">kata</h1>
+      <h1 class="title">term</h1>
       <p class="plan Free">Free</p>
     </div>
     <a class="status online"></a>
@@ -458,9 +458,9 @@
 
     // Event Listeners for Post Message
     window.addEventListener("message", (event) => {
-      // if (event.source !== window.kata.context) return;
+      // if (event.source !== window.term.context) return;
       if (event.data.type === "Problem-Data") {
-        console.log("Got message from KataContext:", event.data.url);
+        console.log("Got message from termContext:", event.data.url);
 
         const questionData = JSON.parse(event.data.response);
         console.log("Problem Data:", questionData);
@@ -533,7 +533,7 @@
             },
             "*"
           );
-          console.log("📨 Posted message to KataContext");
+          console.log("📨 Posted message to termContext");
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
@@ -550,8 +550,6 @@
     const prompt = data.problem.prompt;
     const expr = data.problem.qlines[0].line;
 
-    console.log("Solving problem with prompt:", prompt);
-    console.log("Expression line:", expr);
   }
 })();
 

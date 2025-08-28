@@ -1,5 +1,5 @@
 (function () {
-  console.log("kata script loaded");
+  console.log("term script loaded");
 
   const settings = {
     autoSolve: {
@@ -18,7 +18,7 @@
 <div class="popup active">
   <div class="topbar">
     <div class="left">
-      <h1 class="title">kata</h1>
+      <h1 class="title">term</h1>
       <p class="plan Free">Free</p>
     </div>
     <a class="status online"></a>
