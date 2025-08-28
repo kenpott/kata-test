@@ -461,7 +461,17 @@
       // if (event.source !== window.kata.context) return;
       if (event.data.type === "Problem-Data") {
         console.log("Got message from KataContext:", event.data.url);
+
+        const questionData = JSON.parse(event.data.response);
+        console.log("Problem Data:", questionData);
+        Solve(questionData);
+
         // stuff here
+        // solving here
+        // detect problem "prompt + qline"
+        // latex mathpix, mathjax
+        // ai solve (gemini, openai for paid users)
+        // display answer (ui?)
       }
     });
 
@@ -536,5 +546,23 @@
     };
   }
 
-  async function autoSolve() {}
+  async function Solve(data) { // pass the entire problem data cuz im lazy to destructure
+    const prompt = data.prompt;
+    const expr = data.qlines?.line;
+
+    console.log("Solving problem with prompt:", prompt);
+    console.log("Expression line:", expr);
+  }
 })();
+
+/**
+ * Types:
+ *  1. Line
+ * 
+ */
+
+/**
+ * Answer Types::
+ *  1: Typebox
+ * 
+ */
