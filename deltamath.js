@@ -7,7 +7,7 @@
     },
     autoAnswer: {
       enabled: false,
-      subsettings: {
+      subSettings: {
         delay: 5.0,
       },
     },
@@ -456,6 +456,28 @@
       }
     }
 
+    // Event Listeners for Post Message
+    window.addEventListener("message", (event) => {
+      if (event.source !== window.kata.context) return;
+      if (event.data.type === "Problem-Data") {
+        console.log("Got message from KataContext:", event.data.url);
+        // stuff here
+        // ex sending
+        /*
+        window.kata.context.postMessage(
+          {
+            type: "Problem-Data",
+            url: this.responseURL,
+            response: this.responseText,
+          },
+          "*"
+        );
+        */
+      }
+    });
+
+    // Event listeners for UI
+
     window.addEventListener("keydown", (event) => {
       if (event.key === "Control") {
         document.querySelector(".popup").classList.toggle("active");
@@ -484,7 +506,7 @@
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
       const delay_text = document.querySelector("#delayValue");
-      settings.autoAnswer.subsettings.delay = parseFloat(level);
+      settings.autoAnswer.subSettings.delay = parseFloat(level);
       delay_text.textContent = level;
     });
   }
@@ -504,6 +526,14 @@
       this.addEventListener("load", function () {
         if (this._url.includes("problemByAssignment")) {
           console.log("🎯 Detected XHR request:", this._url);
+          window.kata.context.postMessage(
+            {
+              type: "Problem-Data",
+              url: this.responseURL,
+              response: this.responseText,
+            },
+            "*"
+          );
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
@@ -515,4 +545,6 @@
       return origSend.call(this, body);
     };
   }
+
+  async function autoSolve() {}
 })();

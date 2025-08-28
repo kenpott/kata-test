@@ -7,7 +7,7 @@
     },
     autoAnswer: {
       enabled: false,
-      subsettings: {
+      subSettings: {
         delay: 5.0,
         smartScore: 80,
       },
@@ -503,14 +503,14 @@
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
       const delay_text = document.querySelector("#delayValue");
-      settings.autoAnswer.subsettings.delay = parseFloat(level);
+      settings.autoAnswer.subSettings.delay = parseFloat(level);
       delay_text.textContent = level;
     });
 
     smartScore_input.addEventListener("input", (event) => {
       const level = event.target.value;
       const score_text = document.querySelector("#smartScoreValue");
-      settings.autoAnswer.subsettings.smartScore = parseInt(level);
+      settings.autoAnswer.subSettings.smartScore = parseInt(level);
       score_text.textContent = level;
     });
   }
