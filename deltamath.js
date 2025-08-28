@@ -457,8 +457,8 @@
     }
 
     // Event Listeners for Post Message
-    window.kata.context.addEventListener("message", (event) => {
-      if (event.source !== window.kata.context) return;
+    window.addEventListener("message", (event) => {
+      // if (event.source !== window.kata.context) return;
       if (event.data.type === "Problem-Data") {
         console.log("Got message from KataContext:", event.data.url);
         // stuff here
