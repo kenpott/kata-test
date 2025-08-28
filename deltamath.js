@@ -457,8 +457,7 @@
     }
 
     // Event Listeners for Post Message
-    window.addEventListener("message", (event) => {
-      console.log("Received message:", event);
+    window.kata.context.addEventListener("message", (event) => {
       if (event.source !== window.kata.context) return;
       if (event.data.type === "Problem-Data") {
         console.log("Got message from KataContext:", event.data.url);
@@ -516,17 +515,18 @@
       this.addEventListener("load", function () {
         if (this._url.includes("problemByAssignment")) {
           console.log("🎯 Detected XHR request:", this._url);
+          window.kata.context.postMessage(
+            {
+              type: "Problem-Data",
+              url: this.responseURL,
+              response: this.responseText,
+            },
+            "*"
+          );
+          console.log("📨 Posted message to KataContext");
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
-            window.kata.context.postMessage(
-              {
-                type: "Problem-Data",
-                url: this.responseURL,
-                response: this.responseText,
-              },
-              "*"
-            );
           } catch {
             console.log("⚠️ Could not parse response as JSON");
           }
