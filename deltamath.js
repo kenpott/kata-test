@@ -515,7 +515,7 @@
       this.addEventListener("load", function () {
         if (this._url.includes("problemByAssignment")) {
           console.log("🎯 Detected XHR request:", this._url);
-          window.kata.context.postMessage(
+          window.postMessage(
             {
               type: "Problem-Data",
               url: this.responseURL,
