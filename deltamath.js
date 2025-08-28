@@ -529,6 +529,7 @@
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
+            /*
             window.kata.context.postMessage(
               {
                 type: "Problem-Data",
@@ -537,6 +538,7 @@
               },
               "*"
             );
+            */
           } catch {
             console.log("⚠️ Could not parse response as JSON");
           }
