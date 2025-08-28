@@ -548,7 +548,7 @@
 
   async function Solve(data) { // pass the entire problem data cuz im lazy to destructure
     const prompt = data.problem.prompt;
-    const expr = data.problem.qlines?.line;
+    const expr = data.problem.qlines[0].line;
 
     console.log("Solving problem with prompt:", prompt);
     console.log("Expression line:", expr);
