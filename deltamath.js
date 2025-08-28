@@ -526,17 +526,17 @@
       this.addEventListener("load", function () {
         if (this._url.includes("problemByAssignment")) {
           console.log("🎯 Detected XHR request:", this._url);
-          window.kata.context.postMessage(
-            {
-              type: "Problem-Data",
-              url: this.responseURL,
-              response: this.responseText,
-            },
-            "*"
-          );
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
+            window.kata.context.postMessage(
+              {
+                type: "Problem-Data",
+                url: this.responseURL,
+                response: this.responseText,
+              },
+              "*"
+            );
           } catch {
             console.log("⚠️ Could not parse response as JSON");
           }
