@@ -459,8 +459,10 @@
       if (event.data.type === "Problem-Data") {
         console.log("Got message from termContext:", event.data.url);
 
-        const questionData = JSON.parse(event.data.response);
+        // Use response directly without parsing
+        const questionData = event.data.response;
         console.log("Problem Data:", questionData);
+
         const result = await Solve(questionData);
         console.log("Solve result:", result);
 
