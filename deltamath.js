@@ -490,7 +490,7 @@
         }
         const result = await Solve([questionData, __sling__]);
         answer = result;
-        const notifier = answerNotification();
+        const notifier = promptNotification();
         notifier.showNotification(JSON.stringify(answer));
         console.log("Solve result:", answer);
       }
