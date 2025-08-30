@@ -457,21 +457,8 @@
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data") {
-        console.log("Got message from termContext:", event.data.url);
-
-        // Use response directly without parsing
-        const questionData = event.data.response;
-        console.log("Problem Data:", questionData);
-
+        const questionData = JSON.parse(event.data.response);
         const result = await Solve(questionData);
-        console.log("Solve result:", result);
-
-        // stuff here
-        // solving here
-        // detect problem "prompt + qline"
-        // latex mathpix, mathjax
-        // ai solve (gemini, openai for paid users) - use cloudflare workers?
-        // display answer (ui?)
       }
     });
 
@@ -547,20 +534,16 @@
   }
 
   async function Solve(data) {
-    const problem = data.problem;
+    const parsed = JSON.parse(data);
+    const problem = parsed.problem;
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: problem,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: problem }),
       }
     );
-
     return result.json();
   }
 })();
