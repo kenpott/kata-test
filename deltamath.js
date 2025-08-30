@@ -473,7 +473,7 @@
         const result = await Solve(questionData);
         answer = result;
         const notifier = answerNotification();
-        notifier.showNotification(result);
+        notifier.showNotification(result[0]);
         console.log("Solve result:", result);
       } else if (event.data.type === "Problem-Data-FETCH") {
         answer = null;
@@ -489,7 +489,7 @@
         const result = await Solve([questionData, __sling__]);
         answer = result;
         const notifier = answerNotification();
-        notifier.showNotification(result);
+        notifier.showNotification(result[0]);
         console.log("Solve result:", result);
       }
     });
@@ -606,11 +606,10 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #222;
+            background: #1c1c1c;
             color: #fff;
             padding: 12px 16px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: space-between;
