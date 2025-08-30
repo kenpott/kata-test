@@ -388,36 +388,24 @@
     document.head.appendChild(styleEl);
 
     const popup = document.querySelector(".popup");
-    const status_dislay = document.querySelector(".status");
-    const autoSolve_toggle = document.querySelector("#auto-solve");
-    const autoAnswer_toggle = document.querySelector("#auto-answer");
-    const delay_input = document.querySelector("#delay");
+    const status_display = document.querySelector(".status");
+    const autoSolve_toggle = document.querySelector("#autoSolveCheckbox");
+    const autoAnswer_toggle = document.querySelector("#autoAnswerCheckbox");
+    const delay_input = document.querySelector("#delayInput");
 
     const toggleHandlers = {
       autoSolve: (enabled) => {
-        if (enabled) {
-          console.log("Auto-solve enabled");
-        } else {
-          console.log("Auto-solve disabled");
-        }
+        console.log(`Auto-solve ${enabled ? "enabled" : "disabled"}`);
       },
       autoAnswer: (enabled) => {
-        if (enabled) {
-          console.log("Auto-answer enabled");
-        } else {
-          console.log("Auto-answer disabled");
-        }
+        console.log(`Auto-answer ${enabled ? "enabled" : "disabled"}`);
       },
     };
-
-    // Toggle status by fetching server
-
-    //
 
     dragElement(popup);
 
     function dragElement(elmnt) {
-      var pos1 = 0,
+      let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
@@ -457,16 +445,18 @@
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data") {
-        const questionData = JSON.parse(event.data.response);
+        const questionData =
+          typeof event.data.response === "string"
+            ? JSON.parse(event.data.response)
+            : event.data.response;
         const result = await Solve(questionData);
+        console.log("✅ Solve result:", result);
       }
     });
 
-    // Event listeners for UI
-
     window.addEventListener("keydown", (event) => {
       if (event.key === "Control") {
-        document.querySelector(".popup").classList.toggle("active");
+        popup.classList.toggle("active");
       }
     });
 
@@ -475,14 +465,15 @@
       const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
       if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
         autoAnswerCheckbox.checked = false;
+        settings.autoAnswer.enabled = false;
       }
       settings.autoSolve.enabled = enabled;
       toggleHandlers.autoSolve(enabled);
     });
 
     autoAnswer_toggle.addEventListener("change", (event) => {
-      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
       const enabled = event.target.checked;
+      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
       autoSolveCheckbox.checked = enabled;
       settings.autoAnswer.enabled = enabled;
       settings.autoSolve.enabled = enabled;
@@ -534,8 +525,7 @@
   }
 
   async function Solve(data) {
-    const parsed = JSON.parse(data);
-    const problem = parsed.problem;
+    const problem = data.problem;
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
