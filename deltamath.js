@@ -465,6 +465,7 @@
           return;
         }
         const result = await Solve(questionData);
+        alert("Solve result: " + JSON.stringify(result));
         console.log("Solve result:", result);
       }
     });
