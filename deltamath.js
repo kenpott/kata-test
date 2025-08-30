@@ -456,21 +456,20 @@
       }
     }
 
-    // Event Listeners for Post Message
     window.addEventListener("message", (event) => {
-      // if (event.source !== window.term.context) return;
       if (event.data.type === "Problem-Data") {
         console.log("Got message from termContext:", event.data.url);
 
         const questionData = JSON.parse(event.data.response);
         console.log("Problem Data:", questionData);
-        Solve(questionData);
+        const result = Solve(questionData);
+        console.log("Solve result:", result);
 
         // stuff here
         // solving here
         // detect problem "prompt + qline"
         // latex mathpix, mathjax
-        // ai solve (gemini, openai for paid users)
+        // ai solve (gemini, openai for paid users) - use cloudflare workers?
         // display answer (ui?)
       }
     });
@@ -546,21 +545,35 @@
     };
   }
 
-  async function Solve(data) { // pass the entire problem data cuz im lazy to destructure
-    const prompt = data.problem.prompt;
-    const expr = data.problem.qlines[0].line;
+  async function Solve(data) {
+    // pass the entire problem data cuz im lazy to destructure
+    // const prompt = data.problem.prompt;
+    // const expr = data.problem.qlines[0].line;
 
+    // add fail check here
+
+    const result = await fetch("http://localhost:8787/solve", { // https://term-worker.buyterm-vip.workers.dev/solve
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // pass key for auth later
+      },
+      body: JSON.stringify({
+        text: data.problem,
+      }),
+    });
+    return result.json();
   }
 })();
 
 /**
  * Types:
  *  1. Line
- * 
+ *
  */
 
 /**
  * Answer Types::
  *  1: Typebox
- * 
+ *
  */
