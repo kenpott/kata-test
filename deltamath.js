@@ -599,7 +599,7 @@
       };
     } else {
       payload = {
-        text: data.problem,
+        text: data,
       };
     }
 
