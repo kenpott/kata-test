@@ -395,26 +395,34 @@
     const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
-      autoAnswer: (enabled) => {
-        if (enabled) {
-          console.log("Auto-answer enabled");
-
-          if (answer) {
+      autoSolve: (enabled) => {
+        if (!enabled) {
+          console.log("Auto-answer disabled");
+          return;
+        }
+        console.log("Auto-answer enabled");
+        if (answer) {
+          const notifier = promptNotification();
+          notifier.showNotification(JSON.stringify(answer), {
+            temporary: false,
+          });
+          return;
+        }
+        if (questionData) {
+          Solve(questionData).then((ans) => {
+            answer = ans;
             const notifier = promptNotification();
             notifier.showNotification(JSON.stringify(answer), {
               temporary: false,
             });
-          } else if (questionData) {
-            Solve(questionData).then((ans) => {
-              answer = ans;
-              const notifier = promptNotification();
-              notifier.showNotification(JSON.stringify(answer), {
-                temporary: false,
-              });
-            });
-          }
+          });
+        }
+      },
+      autoSolve: (enabled) => {
+        if (enabled) {
+          console.log("Auto-solve enabled");
         } else {
-          console.log("Auto-answer disabled");
+          console.log("Auto-solve disabled");
         }
       },
     };
