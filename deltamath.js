@@ -545,6 +545,7 @@
   }
 
   async function Solve(data) {
+    const problem = data.problem;
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
@@ -553,10 +554,11 @@
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          text: JSON.stringify(data.problem),
+          text: problem,
         }),
       }
     );
+
     return result.json();
   }
 })();
