@@ -545,22 +545,18 @@
   }
 
   async function Solve(data) {
-    // pass the entire problem data cuz im lazy to destructure
-    // const prompt = data.problem.prompt;
-    // const expr = data.problem.qlines[0].line;
-
-    // add fail check here
-
-    const result = await fetch("https://term-worker.buyterm-vip.workers.dev/solve", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // pass key for auth later
-      },
-      body: JSON.stringify({
-        text: data.problem,
-      }),
-    });
+    const result = await fetch(
+      "https://term-worker.buyterm-vip.workers.dev/solve",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: JSON.stringify(data.problem),
+        }),
+      }
+    );
     return result.json();
   }
 })();
