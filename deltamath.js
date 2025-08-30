@@ -561,7 +561,7 @@
         text: data.problem,
       }),
     });
-    return result.json();
+    return await result.json();
   }
 })();
 
