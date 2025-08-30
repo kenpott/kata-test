@@ -472,8 +472,10 @@
         }
         const result = await Solve(questionData);
         answer = result;
-        const notifier = answerNotification();
-        notifier.showNotification(result[0]);
+        const notifier = promptNotification();
+        notifier.showNotification(result, {
+          temporary: false,
+        });
         console.log("Solve result:", result);
       } else if (event.data.type === "Problem-Data-FETCH") {
         answer = null;
@@ -598,80 +600,95 @@
     };
   }
 
-  function answerNotification() {
-    let notification = document.querySelector("#answerNotification");
+  function promptNotification() {
+    let container = document.querySelector("#notificationContainer");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "notificationContainer";
+      container.style.position = "fixed";
+      container.style.bottom = "20px";
+      container.style.right = "20px";
+      container.style.display = "flex";
+      container.style.flexDirection = "column-reverse"; 
+      container.style.gap = "10px"; 
+      container.style.zIndex = "999999";
+      document.body.appendChild(container);
+    }
+
     if (!document.querySelector("#answerNotificationStyles")) {
       const css = `
-        #answerNotification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1c1c1c;
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-width: 200px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            font-family: sans-serif;
-            z-index: 999999;
-        }
-
-        #answerNotification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #answerNotification button {
-            background: transparent;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: 16px;
-            margin-left: 10px;
-        }`;
-
+      .answerNotification {
+          background: #1c1c1c;
+          color: #fff;
+          padding: 12px 16px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          min-width: 200px;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          font-family: sans-serif;
+      }
+      .answerNotification.show {
+          opacity: 1;
+          transform: translateY(0);
+      }
+      .answerNotification button {
+          background: transparent;
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          font-size: 16px;
+          margin-left: 10px;
+      }
+    `;
       const style = document.createElement("style");
       style.id = "answerNotificationStyles";
       style.textContent = css;
       document.head.appendChild(style);
     }
 
-    if (!notification) {
+    function showNotification(
+      text,
+      options = { temporary: true, duration: 5000 }
+    ) {
       const html = `
-        <div id="answerNotification">
-            <span id="answerNotificationText"></span>
-            <button id="answerNotificationClose">✖</button>
-        </div>`;
-      document.body.insertAdjacentHTML("beforeend", html);
+      <div class="answerNotification">
+          <span class="answerNotificationText">${text}</span>
+          <button class="answerNotificationClose">✖</button>
+      </div>`;
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+      const notification = tempDiv.firstElementChild;
 
-      document.querySelector("#answerNotificationClose").onclick = () => {
+      const closeBtn = notification.querySelector(".answerNotificationClose");
+      if (options.temporary) closeBtn.style.display = "none";
+
+      closeBtn.onclick = () => {
         notification.classList.remove("show");
+        setTimeout(() => notification.remove(), 300);
       };
 
-      notification = document.querySelector("#answerNotification");
+      container.appendChild(notification);
+      setTimeout(() => notification.classList.add("show"), 10);
+
+      if (options.temporary) {
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, options.duration || 5000);
+      }
     }
 
-    function showNotification(text) {
-      const textDiv = document.querySelector("#answerNotificationText");
-      textDiv.textContent = text;
-      notification.classList.add("show");
-    }
-
-    function hideNotification() {
-      notification.classList.remove("show");
-    }
-
-    return { showNotification, hideNotification };
+    return { showNotification };
   }
 
   async function Solve(data) {
+    const solvingNotification = promptNotification();
+    solvingNotification.showNotification("Solving");
     let payload;
-
     if (Array.isArray(data)) {
       payload = {
         text: data,
