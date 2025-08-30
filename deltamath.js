@@ -601,47 +601,65 @@
   }
 
   function promptNotification() {
+    // Create container if it doesn't exist
     let container = document.querySelector("#notificationContainer");
     if (!container) {
-      container = document.createElement("div");
-      container.id = "notificationContainer";
-      container.style.position = "fixed";
-      container.style.bottom = "20px";
-      container.style.right = "20px";
-      container.style.display = "flex";
-      container.style.flexDirection = "column-reverse";
-      container.style.gap = "10px";
-      container.style.zIndex = "999999";
-      document.body.appendChild(container);
+      // CSS for container as string
+      const containerCss = `
+      #notificationContainer {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 10px;
+        z-index: 999999;
+      }
+    `;
+
+      // Append container CSS
+      if (!document.querySelector("#notificationContainerStyles")) {
+        const style = document.createElement("style");
+        style.id = "notificationContainerStyles";
+        style.textContent = containerCss;
+        document.head.appendChild(style);
+      }
+
+      // HTML as string
+      const containerHtml = `<div id="notificationContainer"></div>`;
+      document.body.insertAdjacentHTML("beforeend", containerHtml);
+
+      container = document.querySelector("#notificationContainer");
     }
 
+    // Notification CSS as string
     if (!document.querySelector("#answerNotificationStyles")) {
       const css = `
       .answerNotification {
-          background: #1c1c1c;
-          color: #fff;
-          padding: 12px 16px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          min-width: 200px;
-          opacity: 0;
-          transform: translateY(20px);
-          transition: opacity 0.3s ease, transform 0.3s ease;
-          font-family: sans-serif;
+        background: #1c1c1c;
+        color: #cfcfcf;
+        padding: 12px 16px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 200px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        font-family: sans-serif;
       }
       .answerNotification.show {
-          opacity: 1;
-          transform: translateY(0);
+        opacity: 1;
+        transform: translateY(0);
       }
       .answerNotification button {
-          background: transparent;
-          border: none;
-          color: #fff;
-          cursor: pointer;
-          font-size: 16px;
-          margin-left: 10px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        margin-left: 10px;
       }
     `;
       const style = document.createElement("style");
@@ -654,11 +672,14 @@
       text,
       options = { temporary: true, duration: 5000 }
     ) {
+      // Notification HTML as string
       const html = `
       <div class="answerNotification">
-          <span class="answerNotificationText">${text}</span>
-          <button class="answerNotificationClose">✖</button>
-      </div>`;
+        <span class="answerNotificationText">${text}</span>
+        <button class="answerNotificationClose">✖</button>
+      </div>
+    `;
+
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
       const notification = tempDiv.firstElementChild;
