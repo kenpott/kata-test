@@ -473,10 +473,10 @@
         const result = await Solve(questionData);
         answer = result;
         const notifier = promptNotification();
-        notifier.showNotification(result, {
+        notifier.showNotification(JSON.stringify(answer), {
           temporary: false,
         });
-        console.log("Solve result:", result);
+        console.log("Solve result:", answer);
       } else if (event.data.type === "Problem-Data-FETCH") {
         answer = null;
         if (!questionData) {
@@ -491,8 +491,8 @@
         const result = await Solve([questionData, __sling__]);
         answer = result;
         const notifier = answerNotification();
-        notifier.showNotification(result[0]);
-        console.log("Solve result:", result);
+        notifier.showNotification(JSON.stringify(answer));
+        console.log("Solve result:", answer);
       }
     });
 
@@ -609,8 +609,8 @@
       container.style.bottom = "20px";
       container.style.right = "20px";
       container.style.display = "flex";
-      container.style.flexDirection = "column-reverse"; 
-      container.style.gap = "10px"; 
+      container.style.flexDirection = "column-reverse";
+      container.style.gap = "10px";
       container.style.zIndex = "999999";
       document.body.appendChild(container);
     }
