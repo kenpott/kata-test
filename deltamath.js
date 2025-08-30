@@ -440,7 +440,6 @@
       }
 
       function elementDrag(e) {
-        e = e || window.event;
         e.preventDefault();
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
@@ -552,7 +551,7 @@
 
     // add fail check here
 
-    const result = await fetch("http://localhost:8787/solve", { // https://term-worker.buyterm-vip.workers.dev/solve
+    const result = await fetch("https://term-worker.buyterm-vip.workers.dev/solve", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
