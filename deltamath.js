@@ -13,7 +13,14 @@
     },
   };
 
-  const html = `
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  function init() {
+    const termHtml = `
 <div class="popup active">
   <div class="topbar">
     <div class="left">
@@ -70,7 +77,7 @@
 </div>
   `;
 
-  const style = `
+    const termStyle = `
   .popup {
     --color-bg: #1c1c1c;
   --color-popup: #1e1e1e;
@@ -370,21 +377,15 @@
 }
   `;
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-
-  function init() {
     xhrInterceptor();
+    fetchInterceptor();
 
     const container = document.createElement("div");
-    container.innerHTML = html;
+    container.innerHTML = termHtml;
     document.body.appendChild(container);
 
     const styleEl = document.createElement("style");
-    styleEl.textContent = style;
+    styleEl.textContent = termStyle;
     document.head.appendChild(styleEl);
 
     const popup = document.querySelector(".popup");
@@ -455,13 +456,27 @@
       }
     }
 
+    let questionData; // consider making it a global var
+
     window.addEventListener("message", async (event) => {
-      if (event.data.type === "Problem-Data") {
-        let questionData;
+      if (event.data.type === "Problem-Data-XHR") {
         try {
           questionData = JSON.parse(event.data.response);
         } catch {
-          console.warn("Failed to parse Problem-Data response");
+          console.warn("Failed to parse Problem-Data-XHR response");
+          return;
+        }
+        const result = await Solve(questionData);
+        alert("Solve result: " + JSON.stringify(result));
+        console.log("Solve result:", result);
+      } else if (event.data.type === "Problem-Data-FETCH") {
+        if (!questionData) {
+          alert("No question data found restart.");
+        }
+        try {
+          newQuestionData = JSON.parse(event.data.response);
+        } catch {
+          console.warn("Failed to parse Problem-Data-FETCH response");
           return;
         }
         const result = await Solve(questionData);
@@ -522,7 +537,7 @@
           console.log("🎯 Detected XHR request:", this._url);
           window.postMessage(
             {
-              type: "Problem-Data",
+              type: "Problem-Data-XHR",
               url: this.responseURL,
               response: this.responseText,
             },
@@ -538,6 +553,38 @@
         }
       });
       return origSend.call(this, body);
+    };
+  }
+
+  function fetchInterceptor() {
+    if (window.__fetchInterceptorActive) return;
+    window.__fetchInterceptorActive = true;
+
+    const { fetch: originalFetch } = window;
+    window.fetch = async (...args) => {
+      let [resource, config] = args;
+      const url = typeof resource === "string" ? resource : resource.url;
+
+      if (url.includes("_sling__")) {
+        const response = await originalFetch(resource, config);
+        const cloned = response.clone();
+        try {
+          const data = await cloned.json();
+          window.postMessage(
+            {
+              type: "Problem-Data-FETCH",
+              url: this.responseURL,
+              response: this.responseText,
+            },
+            "*"
+          );
+          console.log("📦 New Question data:", data);
+        } catch {
+          console.log("⚠️ Could not parse response as JSON");
+        }
+        return response;
+      }
+      return originalFetch(resource, config);
     };
   }
 
