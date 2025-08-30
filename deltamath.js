@@ -459,8 +459,11 @@
     let questionData; // consider making it a global var
     let __sling__;
 
+    let answer;
+
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
+        answer = null;
         try {
           questionData = JSON.parse(event.data.response);
         } catch {
@@ -468,9 +471,12 @@
           return;
         }
         const result = await Solve(questionData);
-        alert("Solve result: " + JSON.stringify(result));
+        answer = result;
+        const notifier = answerNotification();
+        notifier.showNotification(result);
         console.log("Solve result:", result);
       } else if (event.data.type === "Problem-Data-FETCH") {
+        answer = null;
         if (!questionData) {
           alert("No question data found restart.");
         }
@@ -481,7 +487,9 @@
           return;
         }
         const result = await Solve([questionData, __sling__]);
-        alert("Solve result: " + JSON.stringify(result));
+        answer = result;
+        const notifier = answerNotification();
+        notifier.showNotification(result);
         console.log("Solve result:", result);
       }
     });
@@ -590,6 +598,78 @@
     };
   }
 
+  function answerNotification() {
+    let notification = document.querySelector("#answerNotification");
+    if (!document.querySelector("#answerNotificationStyles")) {
+      const css = `
+        #answerNotification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #222;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 200px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            font-family: sans-serif;
+            z-index: 999999;
+        }
+
+        #answerNotification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #answerNotification button {
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }`;
+
+      const style = document.createElement("style");
+      style.id = "answerNotificationStyles";
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+
+    if (!notification) {
+      const html = `
+        <div id="answerNotification">
+            <span id="answerNotificationText"></span>
+            <button id="answerNotificationClose">✖</button>
+        </div>`;
+      document.body.insertAdjacentHTML("beforeend", html);
+
+      document.querySelector("#answerNotificationClose").onclick = () => {
+        notification.classList.remove("show");
+      };
+
+      notification = document.querySelector("#answerNotification");
+    }
+
+    function showNotification(text) {
+      const textDiv = document.querySelector("#answerNotificationText");
+      textDiv.textContent = text;
+      notification.classList.add("show");
+    }
+
+    function hideNotification() {
+      notification.classList.remove("show");
+    }
+
+    return { showNotification, hideNotification };
+  }
+
   async function Solve(data) {
     let payload;
 
@@ -614,15 +694,3 @@
     return result.json();
   }
 })();
-
-/**
- * Types:
- *  1. Line
- *
- */
-
-/**
- * Answer Types::
- *  1: Typebox
- *
- */
