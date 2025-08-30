@@ -601,23 +601,20 @@
   }
 
   function promptNotification() {
-    // Create container if it doesn't exist
     let container = document.querySelector("#notificationContainer");
     if (!container) {
-      // CSS for container as string
       const containerCss = `
       #notificationContainer {
         position: fixed;
         bottom: 20px;
         right: 20px;
         display: flex;
-        flex-direction: column-reverse;
+        flex-direction: column;
         gap: 10px;
         z-index: 999999;
       }
     `;
 
-      // Append container CSS
       if (!document.querySelector("#notificationContainerStyles")) {
         const style = document.createElement("style");
         style.id = "notificationContainerStyles";
@@ -625,14 +622,12 @@
         document.head.appendChild(style);
       }
 
-      // HTML as string
       const containerHtml = `<div id="notificationContainer"></div>`;
       document.body.insertAdjacentHTML("beforeend", containerHtml);
 
       container = document.querySelector("#notificationContainer");
     }
 
-    // Notification CSS as string
     if (!document.querySelector("#answerNotificationStyles")) {
       const css = `
       .answerNotification {
