@@ -603,6 +603,8 @@
       };
     }
 
+    console.log(data);
+
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
