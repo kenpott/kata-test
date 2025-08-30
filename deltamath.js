@@ -782,7 +782,8 @@
         body: JSON.stringify(payload),
       }
     );
-    answer = result.json();
-    return result.json();
+    const parsed = await result.json();
+    answer = parsed;
+    return parsed;
   }
 })();
