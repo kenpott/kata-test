@@ -609,9 +609,15 @@
         bottom: 20px;
         right: 20px;
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         gap: 10px;
         z-index: 999999;
+
+        /* allow scrolling on overflow */
+        max-height: 50vh;
+        overflow-y: auto;
+        width: 250px; /* fixed width */
+        padding-right: 5px; /* avoid scrollbar overlap */
       }
     `;
 
@@ -643,6 +649,8 @@
         transform: translateY(20px);
         transition: opacity 0.3s ease, transform 0.3s ease;
         font-family: sans-serif;
+        word-wrap: break-word; /* wrap long text */
+        white-space: pre-wrap; /* preserve line breaks */
       }
       .answerNotification.show {
         opacity: 1;
@@ -667,14 +675,12 @@
       text,
       options = { temporary: true, duration: 5000 }
     ) {
-      // Notification HTML as string
       const html = `
       <div class="answerNotification">
         <span class="answerNotificationText">${text}</span>
         <button class="answerNotificationClose">✖</button>
       </div>
     `;
-
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
       const notification = tempDiv.firstElementChild;
