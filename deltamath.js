@@ -462,7 +462,7 @@
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
         try {
-          questionData = JSON.parse(event.data.response.problem);
+          questionData = JSON.parse(event.data.response);
         } catch {
           console.warn("Failed to parse Problem-Data-XHR response");
           return;
@@ -602,9 +602,6 @@
         text: data,
       };
     }
-
-    console.log(data);
-
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
