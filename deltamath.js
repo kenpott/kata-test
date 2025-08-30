@@ -455,13 +455,13 @@
       }
     }
 
-    window.addEventListener("message", (event) => {
+    window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data") {
         console.log("Got message from termContext:", event.data.url);
 
         const questionData = JSON.parse(event.data.response);
         console.log("Problem Data:", questionData);
-        const result = Solve(questionData);
+        const result = await Solve(questionData);
         console.log("Solve result:", result);
 
         // stuff here
@@ -561,7 +561,7 @@
         text: data.problem,
       }),
     });
-    return await result.json();
+    return result.json();
   }
 })();
 
