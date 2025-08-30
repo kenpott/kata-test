@@ -395,16 +395,24 @@
     const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
-      autoSolve: (enabled) => {
-        if (enabled) {
-          console.log("Auto-solve enabled");
-        } else {
-          console.log("Auto-solve disabled");
-        }
-      },
       autoAnswer: (enabled) => {
         if (enabled) {
           console.log("Auto-answer enabled");
+
+          if (answer) {
+            const notifier = promptNotification();
+            notifier.showNotification(JSON.stringify(answer), {
+              temporary: false,
+            });
+          } else if (questionData) {
+            Solve(questionData).then((ans) => {
+              answer = ans;
+              const notifier = promptNotification();
+              notifier.showNotification(JSON.stringify(answer), {
+                temporary: false,
+              });
+            });
+          }
         } else {
           console.log("Auto-answer disabled");
         }
@@ -504,12 +512,15 @@
           console.warn("Failed to parse Problem-Data-XHR response");
           return;
         }
-        const result = await Solve(questionData);
-        answer = result;
-        const notifier = promptNotification();
-        notifier.showNotification(JSON.stringify(answer), {
-          temporary: false,
-        });
+        answer = await Solve(questionData);
+
+        if (settings.autoAnswer.enabled) {
+          const notifier = promptNotification();
+          notifier.showNotification(JSON.stringify(answer), {
+            temporary: false,
+          });
+        }
+
         console.log("Solve result:", answer);
       } else if (event.data.type === "Problem-Data-FETCH") {
         answer = null;
@@ -522,10 +533,11 @@
           console.warn("Failed to parse Problem-Data-FETCH response");
           return;
         }
-        const result = await Solve([questionData, __sling__]);
-        answer = result;
-        const notifier = promptNotification();
-        notifier.showNotification(JSON.stringify(answer));
+        answer = await Solve([questionData, __sling__]);
+        if (settings.autoAnswer.enabled) {
+          const notifier = promptNotification();
+          notifier.showNotification(JSON.stringify(answer));
+        }
         console.log("Solve result:", answer);
       }
     });
@@ -762,7 +774,7 @@
         body: JSON.stringify(payload),
       }
     );
-
+    answer = result.json();
     return result.json();
   }
 })();
