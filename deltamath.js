@@ -457,11 +457,12 @@
     }
 
     let questionData; // consider making it a global var
+    let __sling__;
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
         try {
-          questionData = JSON.parse(event.data.response);
+          questionData = JSON.parse(event.data.response.problem);
         } catch {
           console.warn("Failed to parse Problem-Data-XHR response");
           return;
@@ -474,12 +475,12 @@
           alert("No question data found restart.");
         }
         try {
-          newQuestionData = JSON.parse(event.data.response);
+          __sling__ = JSON.parse(event.data.response);
         } catch {
           console.warn("Failed to parse Problem-Data-FETCH response");
           return;
         }
-        const result = await Solve(questionData);
+        const result = await Solve([questionData, __sling__]);
         alert("Solve result: " + JSON.stringify(result));
         console.log("Solve result:", result);
       }
@@ -573,11 +574,12 @@
           window.postMessage(
             {
               type: "Problem-Data-FETCH",
-              url: this.responseURL,
-              response: this.responseText,
+              url: response.url,
+              response: JSON.stringify(data),
             },
             "*"
           );
+
           console.log("📦 New Question data:", data);
         } catch {
           console.log("⚠️ Could not parse response as JSON");
@@ -589,15 +591,27 @@
   }
 
   async function Solve(data) {
-    const problem = data.problem;
+    let payload;
+
+    if (Array.isArray(data)) {
+      payload = {
+        text: data,
+      };
+    } else {
+      payload = {
+        text: data.problem,
+      };
+    }
+
     const result = await fetch(
       "https://term-worker.buyterm-vip.workers.dev/solve",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: problem }),
+        body: JSON.stringify(payload),
       }
     );
+
     return result.json();
   }
 })();
