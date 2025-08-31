@@ -378,6 +378,7 @@
   `;
 
     xhrInterceptor();
+    fetchInterceptor();
 
     const container = document.createElement("div");
     container.innerHTML = termHtml;
@@ -407,7 +408,15 @@
           });
           return;
         } else {
-          await Solve([questionData, customFileData]);
+          await Solve(questionData);
+        }
+        if (questionData) {
+          const result = await Solve(questionData);
+          currentAnswer = result;
+          const notifier = promptNotification();
+          notifier.showNotification(currentAnswer, {
+            temporary: false,
+          });
         }
       },
       autoAnswer: (enabled) => {
@@ -499,7 +508,7 @@
     }
 
     let questionData;
-    let customFileData;
+    let slingData;
     let currentAnswer;
 
     window.addEventListener("message", async (event) => {
@@ -507,30 +516,36 @@
         currentAnswer = null;
         try {
           questionData = JSON.parse(event.data.response);
-          // fetch the custom files if there is
-          if (questionData.custom_files) {
-            const customFileResponse = await fetch(
-              `https://www.deltamath.com/api/custom_files/${questionData.custom_files}`,
-              {
-                method: "GET",
-                credentials: "include",
-              }
-            );
-            console.log("prior", customFileResponse);
-            customFileData = await customFileResponse.json();
-            console.log("post", customFileData);
-          }
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-        currentAnswer = await Solve([questionData, customFileData]);
+        currentAnswer = await Solve(questionData);
 
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
             temporary: false,
           });
+        }
+
+        console.log("Solve result:", currentAnswer);
+      } else if (event.data.type === "Problem-Data-FETCH") {
+        currentAnswer = null;
+        if (!questionData) {
+          alert("No question data found. Please restart.");
+          return;
+        }
+        try {
+          slingData = JSON.parse(event.data.response);
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-FETCH response:", error);
+          return;
+        }
+        currentAnswer = await Solve([questionData, slingData]);
+        if (settings.autoAnswer.enabled) {
+          const notifier = promptNotification();
+          notifier.showNotification(currentAnswer);
         }
         console.log("Solve result:", currentAnswer);
       }
@@ -594,13 +609,46 @@
             "*"
           );
           try {
-            JSON.parse(this.responseText);
+            JSON.parse(this.responseText); // Just validate it's valid JSON
           } catch (error) {
             console.log("⚠️ Could not parse XHR response as JSON:", error);
           }
         }
       });
       return origSend.call(this, body);
+    };
+  }
+
+  function fetchInterceptor() {
+    if (window.__fetchInterceptorActive) return;
+    window.__fetchInterceptorActive = true;
+
+    const { fetch: originalFetch } = window;
+    window.fetch = async (...args) => {
+      let [resource, config] = args;
+      const url = typeof resource === "string" ? resource : resource.url;
+
+      // Intercept custom file requests
+      if (url.includes("custom_files/")) {
+        const response = await originalFetch(resource, config);
+        const cloned = response.clone();
+        try {
+          const responseData = await cloned.json();
+          window.postMessage(
+            {
+              type: "Custom-File-Data",
+              url: response.url,
+              response: JSON.stringify(responseData),
+            },
+            "*"
+          );
+        } catch (error) {
+          console.log("⚠️ Could not parse custom file response as JSON:", error);
+        }
+        return response;
+      }
+      
+      return originalFetch(resource, config);
     };
   }
 
@@ -712,7 +760,6 @@
   }
 
   async function Solve(data) {
-    console.log("data sending", data);
     const solvingNotification = promptNotification();
     solvingNotification.showNotification("Solving");
     let payload;
@@ -734,7 +781,6 @@
       }
     );
     const parsed = await result.json();
-    // Extract just the answer property and return it directly
     return parsed.answer;
   }
 })();
