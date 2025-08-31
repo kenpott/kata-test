@@ -521,7 +521,9 @@
               method: "GET",
               credentials: "include"
             });
+            console.log("prior", customFileResponse);
             customFileData = await customFileResponse.json();
+            console.log("post", customFileData);
           }
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
