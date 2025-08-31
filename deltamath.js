@@ -508,7 +508,7 @@
     }
 
     let questionData;
-    let slingData;
+    let customFileData;
     let currentAnswer;
 
     window.addEventListener("message", async (event) => {
@@ -516,36 +516,25 @@
         currentAnswer = null;
         try {
           questionData = JSON.parse(event.data.response);
+          // fetch the custom files if there is
+          if (questionData.custom_files) {
+            const customFileResponse = await fetch(`https://www.deltamath.com/api/custom_files/${questionData.custom_files}`, {
+              method: "GET",
+              credentials: "include"
+            });
+            customFileData = await customFileResponse.json();
+          }
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-        currentAnswer = await Solve(questionData);
+        currentAnswer = await Solve([questionData, customFileData]);
 
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
             temporary: false,
           });
-        }
-
-        console.log("Solve result:", currentAnswer);
-      } else if (event.data.type === "Problem-Data-FETCH") {
-        currentAnswer = null;
-        if (!questionData) {
-          alert("No question data found. Please restart.");
-          return;
-        }
-        try {
-          slingData = JSON.parse(event.data.response);
-        } catch (error) {
-          console.warn("Failed to parse Problem-Data-FETCH response:", error);
-          return;
-        }
-        currentAnswer = await Solve([questionData, slingData]);
-        if (settings.autoAnswer.enabled) {
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer);
         }
         console.log("Solve result:", currentAnswer);
       }
@@ -609,44 +598,13 @@
             "*"
           );
           try {
-            JSON.parse(this.responseText); // Just validate it's valid JSON
+            JSON.parse(this.responseText);
           } catch (error) {
             console.log("⚠️ Could not parse XHR response as JSON:", error);
           }
         }
       });
       return origSend.call(this, body);
-    };
-  }
-
-  function fetchInterceptor() {
-    if (window.__fetchInterceptorActive) return;
-    window.__fetchInterceptorActive = true;
-
-    const { fetch: originalFetch } = window;
-    window.fetch = async (...args) => {
-      let [resource, config] = args;
-      const url = typeof resource === "string" ? resource : resource.url;
-
-      if (url.includes("_sling__")) {
-        const response = await originalFetch(resource, config);
-        const cloned = response.clone();
-        try {
-          const responseData = await cloned.json();
-          window.postMessage(
-            {
-              type: "Problem-Data-FETCH",
-              url: response.url,
-              response: JSON.stringify(responseData),
-            },
-            "*"
-          );
-        } catch (error) {
-          console.log("⚠️ Could not parse fetch response as JSON:", error);
-        }
-        return response;
-      }
-      return originalFetch(resource, config);
     };
   }
 
