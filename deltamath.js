@@ -407,7 +407,7 @@
           });
           return;
         } else {
-          await Solve(questionData);
+          await Solve([questionData, customFileData]);
         }
         if (questionData) {
           const result = await Solve(questionData);
