@@ -378,7 +378,6 @@
   `;
 
     xhrInterceptor();
-    fetchInterceptor();
 
     const container = document.createElement("div");
     container.innerHTML = termHtml;
