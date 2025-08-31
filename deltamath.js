@@ -510,44 +510,52 @@
     let questionData;
     let slingData;
     let currentAnswer;
+    let hasSolved = false; // Prevent duplicate solving
+
+    // Function to attempt solving when both data pieces are available
+    async function attemptSolve() {
+      if (!questionData || !slingData || hasSolved) {
+        return;
+      }
+
+      hasSolved = true;
+      console.log("Both data pieces available, solving...", [questionData, slingData]);
+      currentAnswer = await Solve([questionData, slingData]);
+      
+      if (settings.autoAnswer.enabled) {
+        const notifier = promptNotification();
+        notifier.showNotification(currentAnswer, {
+          temporary: false,
+        });
+      }
+      
+      console.log("Solve result:", currentAnswer);
+    }
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
+        // Reset everything for new question
         currentAnswer = null;
+        slingData = null;
+        hasSolved = false;
+        
         try {
           questionData = JSON.parse(event.data.response);
+          console.log("Question data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-        currentAnswer = await Solve(questionData);
-
-        if (settings.autoAnswer.enabled) {
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer, {
-            temporary: false,
-          });
-        }
-
-        console.log("Solve result:", currentAnswer);
+        await attemptSolve();
       } else if (event.data.type === "Problem-Data-FETCH") {
-        currentAnswer = null;
-        if (!questionData) {
-          alert("No question data found. Please restart.");
-          return;
-        }
         try {
           slingData = JSON.parse(event.data.response);
+          console.log("Sling data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
           return;
         }
-        currentAnswer = await Solve([questionData, slingData]);
-        if (settings.autoAnswer.enabled) {
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer);
-        }
-        console.log("Solve result:", currentAnswer);
+        await attemptSolve();
       }
     });
 
@@ -781,7 +789,6 @@
       }
     );
     const parsed = await result.json();
-    // Extract just the answer property and return it directly
     return parsed.answer;
   }
 })();
