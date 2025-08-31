@@ -401,9 +401,9 @@
           return;
         }
         console.log("Auto-solve enabled");
-        if (answer) {
+        if (currentAnswer) {
           const notifier = promptNotification();
-          notifier.showNotification(JSON.stringify(answer), {
+          notifier.showNotification(currentAnswer, {
             temporary: false,
           });
           return;
@@ -411,12 +411,11 @@
           await Solve(questionData);
         }
         if (questionData) {
-          Solve(questionData).then((ans) => {
-            answer = ans;
-            const notifier = promptNotification();
-            notifier.showNotification(JSON.stringify(answer), {
-              temporary: false,
-            });
+          const result = await Solve(questionData);
+          currentAnswer = result;
+          const notifier = promptNotification();
+          notifier.showNotification(currentAnswer, {
+            temporary: false,
           });
         }
       },
@@ -508,47 +507,47 @@
       }
     }
 
-    let questionData; // consider making it a global var
-    let __sling__;
-
-    let answer;
+    let questionData;
+    let slingData;
+    let currentAnswer;
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
-        answer = null;
+        currentAnswer = null;
         try {
           questionData = JSON.parse(event.data.response);
-        } catch {
-          console.warn("Failed to parse Problem-Data-XHR response");
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-        answer = await Solve(questionData);
+        currentAnswer = await Solve(questionData);
 
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(answer.answer, {
+          notifier.showNotification(currentAnswer, {
             temporary: false,
           });
         }
 
-        console.log("Solve result:", answer.answer);
+        console.log("Solve result:", currentAnswer);
       } else if (event.data.type === "Problem-Data-FETCH") {
-        answer = null;
+        currentAnswer = null;
         if (!questionData) {
-          alert("No question data found restart.");
-        }
-        try {
-          __sling__ = JSON.parse(event.data.response);
-        } catch {
-          console.warn("Failed to parse Problem-Data-FETCH response");
+          alert("No question data found. Please restart.");
           return;
         }
-        answer = await Solve([questionData, __sling__]);
+        try {
+          slingData = JSON.parse(event.data.response);
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-FETCH response:", error);
+          return;
+        }
+        currentAnswer = await Solve([questionData, slingData]);
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(answer.answer);
+          notifier.showNotification(currentAnswer);
         }
-        console.log("Solve result:", answer.answer);
+        console.log("Solve result:", currentAnswer);
       }
     });
 
@@ -610,9 +609,9 @@
             "*"
           );
           try {
-            const data = JSON.parse(this.responseText);
-          } catch {
-            console.log("⚠️ Could not parse response as JSON");
+            JSON.parse(this.responseText); // Just validate it's valid JSON
+          } catch (error) {
+            console.log("⚠️ Could not parse XHR response as JSON:", error);
           }
         }
       });
@@ -633,17 +632,17 @@
         const response = await originalFetch(resource, config);
         const cloned = response.clone();
         try {
-          const data = await cloned.json();
+          const responseData = await cloned.json();
           window.postMessage(
             {
               type: "Problem-Data-FETCH",
               url: response.url,
-              response: JSON.stringify(data),
+              response: JSON.stringify(responseData),
             },
             "*"
           );
-        } catch {
-          console.log("⚠️ Could not parse response as JSON");
+        } catch (error) {
+          console.log("⚠️ Could not parse fetch response as JSON:", error);
         }
         return response;
       }
@@ -780,7 +779,7 @@
       }
     );
     const parsed = await result.json();
-    answer = parsed;
-    return parsed;
+    // Extract just the answer property and return it directly
+    return parsed.answer;
   }
 })();
