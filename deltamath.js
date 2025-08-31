@@ -395,18 +395,20 @@
     const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
-      autoSolve: (enabled) => {
+      autoSolve: async (enabled) => {
         if (!enabled) {
-          console.log("Auto-answer disabled");
+          console.log("Auto-solve disabled");
           return;
         }
-        console.log("Auto-answer enabled");
+        console.log("Auto-solve enabled");
         if (answer) {
           const notifier = promptNotification();
           notifier.showNotification(JSON.stringify(answer), {
             temporary: false,
           });
           return;
+        } else {
+          await Solve(questionData);
         }
         if (questionData) {
           Solve(questionData).then((ans) => {
@@ -418,11 +420,11 @@
           });
         }
       },
-      autoSolve: (enabled) => {
+      autoAnswer: (enabled) => {
         if (enabled) {
-          console.log("Auto-solve enabled");
+          console.log("Auto-answer enabled");
         } else {
-          console.log("Auto-solve disabled");
+          console.log("Auto-answer disabled");
         }
       },
     };
