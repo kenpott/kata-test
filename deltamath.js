@@ -411,7 +411,7 @@
           await Solve(questionData);
         }
         if (questionData) {
-          const result = await Solve(questionData);
+          const result = await Solve([questionData, slingData]);
           currentAnswer = result;
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
@@ -542,7 +542,6 @@
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
           return;
         }
-        console.log([questionData, slingData]);
         currentAnswer = await Solve([questionData, slingData]);
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
@@ -629,21 +628,22 @@
       let [resource, config] = args;
       const url = typeof resource === "string" ? resource : resource.url;
 
-      if (url.includes("custom_files/")) {
+      // Intercept sling requests (keeping your original logic)
+      if (url.includes("_sling__")) {
         const response = await originalFetch(resource, config);
         const cloned = response.clone();
         try {
           const responseData = await cloned.json();
           window.postMessage(
             {
-              type: "Custom-File-Data",
+              type: "Problem-Data-FETCH",
               url: response.url,
               response: JSON.stringify(responseData),
             },
             "*"
           );
         } catch (error) {
-          console.log("⚠️ Could not parse custom file response as JSON:", error);
+          console.log("⚠️ Could not parse sling response as JSON:", error);
         }
         return response;
       }
@@ -781,6 +781,7 @@
       }
     );
     const parsed = await result.json();
+    // Extract just the answer property and return it directly
     return parsed.answer;
   }
 })();
