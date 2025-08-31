@@ -409,14 +409,6 @@
         } else {
           await Solve([questionData, customFileData]);
         }
-        if (questionData) {
-          const result = await Solve(questionData);
-          currentAnswer = result;
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer, {
-            temporary: false,
-          });
-        }
       },
       autoAnswer: (enabled) => {
         if (enabled) {
@@ -517,10 +509,13 @@
           questionData = JSON.parse(event.data.response);
           // fetch the custom files if there is
           if (questionData.custom_files) {
-            const customFileResponse = await fetch(`https://www.deltamath.com/api/custom_files/${questionData.custom_files}`, {
-              method: "GET",
-              credentials: "include"
-            });
+            const customFileResponse = await fetch(
+              `https://www.deltamath.com/api/custom_files/${questionData.custom_files}`,
+              {
+                method: "GET",
+                credentials: "include",
+              }
+            );
             console.log("prior", customFileResponse);
             customFileData = await customFileResponse.json();
             console.log("post", customFileData);
