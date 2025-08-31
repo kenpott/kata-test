@@ -715,6 +715,7 @@
   }
 
   async function Solve(data) {
+    console.log("data sending", data);
     const solvingNotification = promptNotification();
     solvingNotification.showNotification("Solving");
     let payload;
