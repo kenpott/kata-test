@@ -526,12 +526,12 @@
 
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(JSON.stringify(answer), {
+          notifier.showNotification(answer.text, {
             temporary: false,
           });
         }
 
-        console.log("Solve result:", answer);
+        console.log("Solve result:", answer.answer);
       } else if (event.data.type === "Problem-Data-FETCH") {
         answer = null;
         if (!questionData) {
@@ -546,9 +546,9 @@
         answer = await Solve([questionData, __sling__]);
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(JSON.stringify(answer));
+          notifier.showNotification(answer.text);
         }
-        console.log("Solve result:", answer);
+        console.log("Solve result:", answer.answer);
       }
     });
 
@@ -601,7 +601,6 @@
     XMLHttpRequest.prototype.send = function (body) {
       this.addEventListener("load", function () {
         if (this._url.includes("problemByAssignment")) {
-          console.log("🎯 Detected XHR request:", this._url);
           window.postMessage(
             {
               type: "Problem-Data-XHR",
@@ -610,7 +609,6 @@
             },
             "*"
           );
-          console.log("📨 Posted message to termContext");
           try {
             const data = JSON.parse(this.responseText);
             console.log("📦 Problem data:", data);
@@ -645,8 +643,6 @@
             },
             "*"
           );
-
-          console.log("📦 New Question data:", data);
         } catch {
           console.log("⚠️ Could not parse response as JSON");
         }
