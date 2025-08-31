@@ -542,6 +542,7 @@
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
           return;
         }
+        console.log([questionData, slingData]);
         currentAnswer = await Solve([questionData, slingData]);
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
@@ -628,7 +629,6 @@
       let [resource, config] = args;
       const url = typeof resource === "string" ? resource : resource.url;
 
-      // Intercept custom file requests
       if (url.includes("custom_files/")) {
         const response = await originalFetch(resource, config);
         const cloned = response.clone();
