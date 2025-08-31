@@ -526,7 +526,7 @@
 
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(answer.text, {
+          notifier.showNotification(answer.answer, {
             temporary: false,
           });
         }
@@ -546,7 +546,7 @@
         answer = await Solve([questionData, __sling__]);
         if (settings.autoAnswer.enabled) {
           const notifier = promptNotification();
-          notifier.showNotification(answer.text);
+          notifier.showNotification(answer.answer);
         }
         console.log("Solve result:", answer.answer);
       }
@@ -611,7 +611,6 @@
           );
           try {
             const data = JSON.parse(this.responseText);
-            console.log("📦 Problem data:", data);
           } catch {
             console.log("⚠️ Could not parse response as JSON");
           }
