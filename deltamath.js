@@ -78,33 +78,33 @@
   `;
 
     const termStyle = `
-  .popup {
-    --color-bg: #1c1c1c;
-  --color-popup: #1e1e1e;
-  --color-border: #2a2a2a;
-  --color-text: #cfcfcf; 
-  --color-text-secondary: #a3a3a3; 
-  --color-text-tertiary: #444444;
-  --color-text-disabled: #3a3a3a;
+ .popup {
+  --color-bg: #0f0f0f;
+  --color-popup: #18181b;
+  --color-border: #1f1f22;
+  --color-text: #f5f5f5; 
+  --color-text-secondary: #9ca3af; 
+  --color-text-tertiary: #6b7280;
+  --color-text-disabled: #3f3f46;
 
-  --color-free-bg: #3a3a3a;
-  --color-free-border: #3a3a3a;
+  --color-free-bg: #2a2a2d;     /* same as toggle background */
+  --color-free-border: #2a2a2d; /* matches darker border tone */
   --color-premium-bg: #8b5cf6;
   --color-premium-border: #8b5cf6;
 
-  --color-status-online: #34d399;
+  --color-status-online: #22c55e;
   --color-status-offline: #ef4444;
-  --color-status-idle: #6b7280;
+  --color-status-idle: #52525b;
 
   --color-accent: #8b5cf6;
   --color-accent-hover: #7c3aed;
-  --color-accent-light: #c4b5fd;
+  --color-accent-light: #a78bfa;
 
   --popup-width: 260px;
   --popup-height: 300px;
   --popup-radius: 16px;
 
-  --font-family: Arial, sans-serif;
+  --font-family: 'Inter', Arial, sans-serif;
   --font-size-h1: 1.2em;
   --font-size-plan: 0.9em;
 
@@ -112,18 +112,18 @@
   --switch-height: 1em;
   --switch-knob: 12px;
   --switch-offset: 2px;
-  --color-switch-off: #3a3a3a;
+  --color-switch-off: #2a2a2d;        /* darker toggle background */
   --color-switch-knob: #8b5cf6;
   --color-switch-on: #8b5cf6;
-  --color-switch-knob-active: #3a3a3a;
+  --color-switch-knob-active: #18181b;
 
   --slider-width: 70%;
   --slider-height: 6px;
-  --slider-bg: rgb(82, 82, 82);
+  --slider-bg: #26262a;                /* darker slider track */
   --slider-border-radius: 999px;
   --slider-fill-color: #8b5cf6;
-  --slider-transition: 0.1s;
-  --slider-value-color: #cfcfcf;
+  --slider-transition: 0.2s;
+  --slider-value-color: #f5f5f5;
   --slider-value-gap: 12px;
 
   all: initial;
@@ -375,7 +375,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-  `;
+`;
 
     xhrInterceptor();
     fetchInterceptor();
@@ -510,35 +510,32 @@
     let questionData;
     let slingData;
     let currentAnswer;
-    let hasSolved = false; // Prevent duplicate solving
+    let hasSolved = false;
 
-    // Function to attempt solving when both data pieces are available
     async function attemptSolve() {
       if (!questionData || !slingData || hasSolved) {
         return;
       }
 
       hasSolved = true;
-      console.log("Both data pieces available, solving...", [questionData, slingData]);
       currentAnswer = await Solve([questionData, slingData]);
-      
+
       if (settings.autoAnswer.enabled) {
         const notifier = promptNotification();
         notifier.showNotification(currentAnswer, {
           temporary: false,
         });
       }
-      
+
       console.log("Solve result:", currentAnswer);
     }
 
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
-        // Reset everything for new question
         currentAnswer = null;
         slingData = null;
         hasSolved = false;
-        
+
         try {
           questionData = JSON.parse(event.data.response);
           console.log("Question data received");
@@ -655,7 +652,7 @@
         }
         return response;
       }
-      
+
       return originalFetch(resource, config);
     };
   }
@@ -696,35 +693,51 @@
 
     if (!document.querySelector("#answerNotificationStyles")) {
       const css = `
-      .answerNotification {
-        background: #1c1c1c;
-        color: #cfcfcf;
-        padding: 12px 16px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-width: 200px;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        font-family: sans-serif;
-        word-wrap: break-word; /* wrap long text */
-        white-space: pre-wrap; /* preserve line breaks */
-      }
-      .answerNotification.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .answerNotification button {
-        background: transparent;
-        border: none;
-        color: #fff;
-        cursor: pointer;
-        font-size: 16px;
-        margin-left: 10px;
-      }
-    `;
+.answerNotification {
+  --color-popup: #1e1e1e;
+  --color-border: #2a2a2a;
+  --color-text: #cfcfcf;
+  --color-text-secondary: #a3a3a3;
+  --color-accent: #8b5cf6;
+  --font-family: Arial, sans-serif;
+
+  background: var(--color-popup);
+  color: var(--color-text);
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-family: var(--font-family);
+  word-wrap: break-word; /* wrap long text */
+  white-space: pre-wrap; /* preserve line breaks */
+  border: 1px solid var(--color-border);
+}
+
+.answerNotification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.answerNotification button {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  transition: color 0.2s ease;
+}
+
+.answerNotification button:hover {
+  color: var(--color-accent);
+}
+`;
+
       const style = document.createElement("style");
       style.id = "answerNotificationStyles";
       style.textContent = css;
@@ -789,6 +802,7 @@
       }
     );
     const parsed = await result.json();
+    // Extract just the answer property and return it directly
     return parsed.answer;
   }
 })();
