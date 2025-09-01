@@ -378,7 +378,6 @@
 `;
 
     xhrInterceptor();
-    fetchInterceptor();
 
     const container = document.createElement("div");
     container.innerHTML = termHtml;
@@ -411,7 +410,7 @@
           await Solve(questionData);
         }
         if (questionData) {
-          const result = await Solve([questionData, slingData]);
+          const result = await Solve(questionData);
           currentAnswer = result;
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
@@ -508,17 +507,14 @@
     }
 
     let questionData;
-    let slingData;
     let currentAnswer;
-    let hasSolved = false;
 
     async function attemptSolve() {
-      if (!questionData || !slingData || hasSolved) {
+      if (!questionData) {
         return;
       }
 
-      hasSolved = true;
-      currentAnswer = await Solve([questionData, slingData]);
+      currentAnswer = await Solve(questionData);
 
       if (settings.autoAnswer.enabled) {
         const notifier = promptNotification();
@@ -533,23 +529,12 @@
     window.addEventListener("message", async (event) => {
       if (event.data.type === "Problem-Data-XHR") {
         currentAnswer = null;
-        slingData = null;
-        hasSolved = false;
 
         try {
           questionData = JSON.parse(event.data.response);
           console.log("Question data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
-          return;
-        }
-        await attemptSolve();
-      } else if (event.data.type === "Problem-Data-FETCH") {
-        try {
-          slingData = JSON.parse(event.data.response);
-          console.log("Sling data received");
-        } catch (error) {
-          console.warn("Failed to parse Problem-Data-FETCH response:", error);
           return;
         }
         await attemptSolve();
@@ -621,39 +606,6 @@
         }
       });
       return origSend.call(this, body);
-    };
-  }
-
-  function fetchInterceptor() {
-    if (window.__fetchInterceptorActive) return;
-    window.__fetchInterceptorActive = true;
-
-    const { fetch: originalFetch } = window;
-    window.fetch = async (...args) => {
-      let [resource, config] = args;
-      const url = typeof resource === "string" ? resource : resource.url;
-
-      // Intercept sling requests (keeping your original logic)
-      if (url.includes("_sling__")) {
-        const response = await originalFetch(resource, config);
-        const cloned = response.clone();
-        try {
-          const responseData = await cloned.json();
-          window.postMessage(
-            {
-              type: "Problem-Data-FETCH",
-              url: response.url,
-              response: JSON.stringify(responseData),
-            },
-            "*"
-          );
-        } catch (error) {
-          console.log("⚠️ Could not parse sling response as JSON:", error);
-        }
-        return response;
-      }
-
-      return originalFetch(resource, config);
     };
   }
 
