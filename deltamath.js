@@ -763,7 +763,7 @@
       const parsed = await result.json();
       if (settings.autoSolve.enabled === true) {
         const answerNotification = promptNotification();
-        answerNotification.showNotification(parsed, {
+        answerNotification.showNotification(parsed.answer, {
           temporary: false,
         });
       }
