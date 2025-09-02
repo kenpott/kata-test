@@ -734,6 +734,7 @@
 
   async function Solve(data) {
     const solvingNotification = promptNotification();
+    console.log(data);
     solvingNotification.showNotification("Solving");
     let payload;
     if (Array.isArray(data)) {
