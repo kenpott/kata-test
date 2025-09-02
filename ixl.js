@@ -14,6 +14,8 @@
     },
   };
 
+  let isSolving = false;
+
   const html = `
 <div class="popup active">
   <div class="topbar">
@@ -413,11 +415,23 @@
     const smartScore_input = document.querySelector("#smartScore");
 
     const toggleHandlers = {
-      autoSolve: (enabled) => {
-        if (enabled) {
-          console.log("Auto-solve enabled");
-        } else {
+      autoSolve: async (enabled) => {
+        if (!enabled) {
           console.log("Auto-solve disabled");
+          return;
+        }
+        console.log("Auto-solve enabled");
+
+        if (currentAnswer) {
+          const notifier = promptNotification();
+          notifier.showNotification(currentAnswer, {
+            temporary: false,
+          });
+          return;
+        }
+
+        if (questionData) {
+          await Solve(questionData);
         }
       },
       autoAnswer: (enabled) => {
@@ -475,6 +489,24 @@
       }
     }
 
+    let questionData;
+    let currentAnswer;
+
+    window.addEventListener("message", async (event) => {
+      if (event.data.type === "Problem-Data-FETCH") {
+        currentAnswer = null;
+
+        try {
+          questionData = JSON.parse(event.data.response);
+          console.log("Question data received");
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-FETCH response:", error);
+          return;
+        }
+        await Solve(questionData);
+      }
+    });
+
     window.addEventListener("keydown", (event) => {
       if (event.key === "Control") {
         document.querySelector(".popup").classList.toggle("active");
@@ -514,11 +546,12 @@
       score_text.textContent = level;
     });
   }
+
   function fetchInterceptor() {
     if (window.__fetchInterceptorActive) return;
     window.__fetchInterceptorActive = true;
 
-    const { fetch : originalFetch } = window;
+    const { fetch: originalFetch } = window;
     window.fetch = async (...args) => {
       let [resource, config] = args;
       const url = typeof resource === "string" ? resource : resource.url;
@@ -528,14 +561,216 @@
         const cloned = response.clone();
         try {
           const data = await cloned.json();
+          window.postMessage(
+            {
+              type: "Problem-Data-FETCH",
+              url: response.url,
+              response: JSON.stringify(data),
+            },
+            "*"
+          );
           console.log("📦 Problem data:", data);
-        } catch {
-          console.log("⚠️ Could not parse response as JSON");
+        } catch (error) {
+          console.log("⚠️ Could not parse response as JSON:", error);
+        }
+        return response;
+      } /* else if (url.includes("check_answer")) { // change to tally perhaps
+        const response = await originalFetch(resource, config);
+        const cloned = response.clone();
+        try {
+          const data = await cloned.json();
+          if (data.skillComplete === true) {
+            // assignment is complete
+            const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+            const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+            autoAnswerCheckbox.checked = false;
+            autoSolveCheckbox.checked = false;
+            settings.autoAnswer.enabled = false;
+            settings.autoSolve.enabled = false;
+          }
+        } catch (error) {
+          console.log(
+            "⚠️ Could not parse check_answer response as JSON:",
+            error
+          );
         }
         return response;
       }
+      */
       return originalFetch(resource, config);
     };
+  }
+
+  function promptNotification() {
+    let container = document.querySelector("#notificationContainer");
+    if (!container) {
+      const containerCss = `
+      #notificationContainer {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 10px;
+        z-index: 999999;
+
+        /* allow scrolling on overflow */
+        max-height: 50vh;
+        overflow-y: auto;
+        width: 250px; /* fixed width */
+        padding-right: 5px; /* avoid scrollbar overlap */
+      }
+    `;
+
+      if (!document.querySelector("#notificationContainerStyles")) {
+        const style = document.createElement("style");
+        style.id = "notificationContainerStyles";
+        style.textContent = containerCss;
+        document.head.appendChild(style);
+      }
+
+      const containerHtml = `<div id="notificationContainer"></div>`;
+      document.body.insertAdjacentHTML("beforeend", containerHtml);
+
+      container = document.querySelector("#notificationContainer");
+    }
+
+    if (!document.querySelector("#answerNotificationStyles")) {
+      const css = `
+.answerNotification {
+  --color-popup: #1e1e1e;
+  --color-border: #2a2a2a;
+  --color-text: #cfcfcf;
+  --color-text-secondary: #a3a3a3;
+  --color-accent: #8b5cf6;
+  --font-family: Arial, sans-serif;
+
+  background: var(--color-popup);
+  color: var(--color-text);
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-family: var(--font-family);
+  word-wrap: break-word; /* wrap long text */
+  white-space: pre-wrap; /* preserve line breaks */
+  border: 1px solid var(--color-border);
+}
+
+.answerNotification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.answerNotification button {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  transition: color 0.2s ease;
+}
+
+.answerNotification button:hover {
+  color: var(--color-accent);
+}
+`;
+
+      const style = document.createElement("style");
+      style.id = "answerNotificationStyles";
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+
+    function showNotification(
+      text,
+      options = { temporary: true, duration: 5000 }
+    ) {
+      const html = `
+      <div class="answerNotification">
+        <span class="answerNotificationText">${text}</span>
+        <button class="answerNotificationClose">✖</button>
+      </div>
+    `;
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+      const notification = tempDiv.firstElementChild;
+
+      const closeBtn = notification.querySelector(".answerNotificationClose");
+      if (options.temporary) closeBtn.style.display = "none";
+
+      closeBtn.onclick = () => {
+        notification.classList.remove("show");
+        setTimeout(() => notification.remove(), 300);
+      };
+
+      container.appendChild(notification);
+      setTimeout(() => notification.classList.add("show"), 10);
+
+      if (options.temporary) {
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, options.duration || 5000);
+      }
+    }
+
+    return { showNotification };
+  }
+
+  async function Solve(data) {
+    // Check if already solving before starting
+    if (isSolving) {
+      console.log("Solve request blocked: already solving");
+      return;
+    }
+
+    const solvingNotification = promptNotification();
+    console.log(data);
+
+    try {
+      isSolving = true;
+      solvingNotification.showNotification("Solving...");
+
+      let payload;
+      if (Array.isArray(data)) {
+        payload = {
+          text: data,
+        };
+      } else {
+        payload = {
+          text: data,
+        };
+      }
+
+      const result = await fetch(
+        "https://term-worker.buyterm-vip.workers.dev/solve",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      const parsed = await result.json();
+      if (settings.autoSolve.enabled === true) {
+        const answerNotification = promptNotification();
+        answerNotification.showNotification(parsed.answer, {
+          temporary: false,
+        });
+      }
+      return parsed.answer;
+    } catch (error) {
+      console.error("Solve error:", error);
+      throw error;
+    } finally {
+      isSolving = false;
+    }
   }
 })();
 

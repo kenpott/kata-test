@@ -13,7 +13,6 @@
     },
   };
 
-  // Add solving state
   let isSolving = false;
 
   if (document.readyState === "loading") {
@@ -580,7 +579,7 @@
             "*"
           );
           try {
-            JSON.parse(this.responseText); // Just validate it's valid JSON
+            JSON.parse(this.responseText);
           } catch (error) {
             console.log("⚠️ Could not parse XHR response as JSON:", error);
           }
