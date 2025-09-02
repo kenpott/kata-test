@@ -13,6 +13,9 @@
     },
   };
 
+  // Add solving state
+  let isSolving = false;
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
@@ -400,6 +403,13 @@
           return;
         }
         console.log("Auto-solve enabled");
+        
+        // Check if already solving
+        if (isSolving) {
+          console.log("Already solving, skipping request");
+          return;
+        }
+        
         if (currentAnswer) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
@@ -510,20 +520,29 @@
     let currentAnswer;
 
     async function attemptSolve() {
-      if (!questionData) {
+      if (!questionData || isSolving) {
+        console.log("Cannot solve: no question data or already solving");
         return;
       }
 
-      currentAnswer = await Solve(questionData);
+      try {
+        isSolving = true;
+        console.log("Starting solve process");
+        
+        currentAnswer = await Solve(questionData);
 
-      if (settings.autoAnswer.enabled) {
-        const notifier = promptNotification();
-        notifier.showNotification(currentAnswer, {
-          temporary: false,
-        });
+        if (settings.autoAnswer.enabled) {
+          const notifier = promptNotification();
+          notifier.showNotification(currentAnswer, {
+            temporary: false,
+          });
+        }
+
+        console.log("Solve result:", currentAnswer);
+      } finally {
+        isSolving = false;
+        console.log("Solve process completed");
       }
-
-      console.log("Solve result:", currentAnswer);
     }
 
     window.addEventListener("message", async (event) => {
@@ -745,29 +764,45 @@
   }
 
   async function Solve(data) {
+    // Check if already solving before starting
+    if (isSolving) {
+      console.log("Solve request blocked: already solving");
+      return;
+    }
+
     const solvingNotification = promptNotification();
     console.log(data);
-    solvingNotification.showNotification("Solving");
-    let payload;
-    if (Array.isArray(data)) {
-      payload = {
-        text: data,
-      };
-    } else {
-      payload = {
-        text: data,
-      };
-    }
-    const result = await fetch(
-      "https://term-worker.buyterm-vip.workers.dev/solve",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+    
+    try {
+      isSolving = true;
+      solvingNotification.showNotification("Solving...");
+      
+      let payload;
+      if (Array.isArray(data)) {
+        payload = {
+          text: data,
+        };
+      } else {
+        payload = {
+          text: data,
+        };
       }
-    );
-    const parsed = await result.json();
-    // Extract just the answer property and return it directly
-    return parsed.answer;
+      
+      const result = await fetch(
+        "https://term-worker.buyterm-vip.workers.dev/solve",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      const parsed = await result.json();
+      return parsed.answer;
+    } catch (error) {
+      console.error("Solve error:", error);
+      throw error;
+    } finally {
+      isSolving = false;
+    }
   }
 })();
