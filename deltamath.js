@@ -589,7 +589,8 @@
     };
     XMLHttpRequest.prototype.send = function (body) {
       this.addEventListener("load", function () {
-        if (this._url.includes("problemByAssignment") || this._url.includes("check_answer")) {
+        if (
+          this._url.includes("problemByAssignment")) {
           window.postMessage(
             {
               type: "Problem-Data-XHR",
@@ -602,6 +603,17 @@
             JSON.parse(this.responseText); // Just validate it's valid JSON
           } catch (error) {
             console.log("⚠️ Could not parse XHR response as JSON:", error);
+          }
+        } else if (this._url.includes("check_answer")) {
+          const response = JSON.parse(this.responseText);
+          if (response.skillComplete === true) {
+            // assignment is complete
+            const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+            const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+            autoAnswerCheckbox.enabled = false;
+            autoSolveCheckbox.enabled = false;
+            settings.autoAnswer.enabled = false;
+            settings.autoSolve.enabled = false;
           }
         }
       });
