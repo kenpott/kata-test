@@ -403,7 +403,7 @@
           return;
         }
         console.log("Auto-solve enabled");
-        
+
         if (currentAnswer) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
@@ -411,7 +411,7 @@
           });
           return;
         }
-        
+
         if (questionData) {
           await Solve(questionData);
         }
@@ -518,11 +518,7 @@
           console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-        
-        // Auto-solve if enabled
-        if (settings.autoSolve.enabled) {
-          await Solve(questionData);
-        }
+        await Solve(questionData);
       }
     });
 
@@ -534,24 +530,30 @@
       }
     });
 
-    document.querySelector("#autoSolveCheckbox").addEventListener("change", (event) => {
-      const enabled = event.target.checked;
-      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
-        autoAnswerCheckbox.checked = false;
-      }
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoSolve(enabled);
-    });
+    document
+      .querySelector("#autoSolveCheckbox")
+      .addEventListener("change", (event) => {
+        const enabled = event.target.checked;
+        const autoAnswerCheckbox = document.querySelector(
+          "#autoAnswerCheckbox"
+        );
+        if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
+          autoAnswerCheckbox.checked = false;
+        }
+        settings.autoSolve.enabled = enabled;
+        toggleHandlers.autoSolve(enabled);
+      });
 
-    document.querySelector("#autoAnswerCheckbox").addEventListener("change", (event) => {
-      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-      const enabled = event.target.checked;
-      autoSolveCheckbox.checked = enabled;
-      settings.autoAnswer.enabled = enabled;
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoAnswer(enabled);
-    });
+    document
+      .querySelector("#autoAnswerCheckbox")
+      .addEventListener("change", (event) => {
+        const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+        const enabled = event.target.checked;
+        autoSolveCheckbox.checked = enabled;
+        settings.autoAnswer.enabled = enabled;
+        settings.autoSolve.enabled = enabled;
+        toggleHandlers.autoAnswer(enabled);
+      });
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
@@ -574,8 +576,7 @@
     };
     XMLHttpRequest.prototype.send = function (body) {
       this.addEventListener("load", function () {
-        if (
-          this._url.includes("problemByAssignment")) {
+        if (this._url.includes("problemByAssignment")) {
           window.postMessage(
             {
               type: "Problem-Data-XHR",
@@ -593,8 +594,11 @@
           const response = JSON.parse(this.responseText);
           if (response.skillComplete === true) {
             // assignment is complete
-            const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-            const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+            const autoAnswerCheckbox = document.querySelector(
+              "#autoAnswerCheckbox"
+            );
+            const autoSolveCheckbox =
+              document.querySelector("#autoSolveCheckbox");
             autoAnswerCheckbox.enabled = false;
             autoSolveCheckbox.enabled = false;
             settings.autoAnswer.enabled = false;
@@ -738,11 +742,11 @@
 
     const solvingNotification = promptNotification();
     console.log(data);
-    
+
     try {
       isSolving = true;
       solvingNotification.showNotification("Solving...");
-      
+
       let payload;
       if (Array.isArray(data)) {
         payload = {
@@ -753,7 +757,7 @@
           text: data,
         };
       }
-      
+
       const result = await fetch(
         "https://term-worker.buyterm-vip.workers.dev/solve",
         {
