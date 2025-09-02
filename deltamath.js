@@ -534,7 +534,7 @@
       }
     });
 
-    autoSolve_toggle.addEventListener("change", (event) => {
+    document.querySelector("#autoSolveCheckbox").addEventListener("change", (event) => {
       const enabled = event.target.checked;
       const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
       if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
@@ -544,7 +544,7 @@
       toggleHandlers.autoSolve(enabled);
     });
 
-    autoAnswer_toggle.addEventListener("change", (event) => {
+    document.querySelector("#autoAnswerCheckbox").addEventListener("change", (event) => {
       const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
       const enabled = event.target.checked;
       autoSolveCheckbox.checked = enabled;
