@@ -392,8 +392,8 @@
 
     const popup = document.querySelector(".popup");
     const status_dislay = document.querySelector(".status");
-    const autoSolve_toggle = document.querySelector("#auto-solve");
-    const autoAnswer_toggle = document.querySelector("#auto-answer");
+    const autoSolve_toggle = document.querySelector("#autoSolveCheckbox");
+    const autoAnswer_toggle = document.querySelector("#autoAnswerCheckbox");
     const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
@@ -530,30 +530,24 @@
       }
     });
 
-    document
-      .querySelector("#autoSolveCheckbox")
-      .addEventListener("change", (event) => {
-        const enabled = event.target.checked;
-        const autoAnswerCheckbox = document.querySelector(
-          "#autoAnswerCheckbox"
-        );
-        if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
-          autoAnswerCheckbox.checked = false;
-        }
-        settings.autoSolve.enabled = enabled;
-        toggleHandlers.autoSolve(enabled);
-      });
+    autoAnswer_toggle.addEventListener("change", (event) => {
+      const enabled = event.target.checked;
+      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
+        autoAnswerCheckbox.checked = false;
+      }
+      settings.autoSolve.enabled = enabled;
+      toggleHandlers.autoSolve(enabled);
+    });
 
-    document
-      .querySelector("#autoAnswerCheckbox")
-      .addEventListener("change", (event) => {
-        const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-        const enabled = event.target.checked;
-        autoSolveCheckbox.checked = enabled;
-        settings.autoAnswer.enabled = enabled;
-        settings.autoSolve.enabled = enabled;
-        toggleHandlers.autoAnswer(enabled);
-      });
+    autoSolve_toggle.addEventListener("change", (event) => {
+      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+      const enabled = event.target.checked;
+      autoSolveCheckbox.checked = enabled;
+      settings.autoAnswer.enabled = enabled;
+      settings.autoSolve.enabled = enabled;
+      toggleHandlers.autoAnswer(enabled);
+    });
 
     delay_input.addEventListener("input", (event) => {
       const level = event.target.value;
@@ -767,7 +761,12 @@
         }
       );
       const parsed = await result.json();
-      // Extract just the answer property and return it directly
+      if (settings.autoSolve.enabled === true) {
+        const answerNotification = promptNotification();
+        answerNotification.showNotification(parsed, {
+          temporary: false,
+        });
+      }
       return parsed.answer;
     } catch (error) {
       console.error("Solve error:", error);
