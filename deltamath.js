@@ -589,7 +589,7 @@
     };
     XMLHttpRequest.prototype.send = function (body) {
       this.addEventListener("load", function () {
-        if (this._url.includes("problemByAssignment")) {
+        if (this._url.includes("problemByAssignment") || this._url.includes("check_answer")) {
           window.postMessage(
             {
               type: "Problem-Data-XHR",
