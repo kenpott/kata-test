@@ -26,7 +26,9 @@
     let script = await response.text();
     eval(script);
   }
-  loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js");
+  loadScript(
+    "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+  );
 
   function init() {
     const termHtml = `
@@ -777,11 +779,10 @@
     return { showNotification };
   }
 
-  async function captureScreenshot(selector) {
-    html2canvas(selector).then((canvas) => {
-      const base64Data = canvas.toDataURL('image/png');
-      return base64Data;
-    });
+  async function captureScreenshot(element) {
+    const canvas = await html2canvas(element);
+    const base64Data = canvas.toDataURL("image/png");
+    return base64Data;
   }
 
   async function Solve(data) {
