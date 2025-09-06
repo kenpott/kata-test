@@ -21,6 +21,13 @@
     init();
   }
 
+  async function loadScript(url) {
+    let response = await fetch(url);
+    let script = await response.text();
+    eval(script);
+  }
+  loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js");
+
   function init() {
     const termHtml = `
 <div class="popup active">
