@@ -597,6 +597,7 @@
       }
       const questionSelector = document.querySelector("#mathBlock");
       screenshotData = await captureScreenshot(questionSelector); // should not be used for final
+      console.log("Solving with screenshot!");
       await Solve(screenshotData);
 
       /** Temporary
