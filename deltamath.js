@@ -595,15 +595,15 @@
         });
         return;
       }
-      const questionSelector = document.querySelector("mathBlock");
+      const questionSelector = document.querySelector("#mathBlock");
       screenshotData = await captureScreenshot(questionSelector); // should not be used for final
       await Solve(screenshotData);
 
-/** Temporary
+      /** Temporary
       if (questionData !== null) {
         await Solve(questionData);
       }
-*/
+      */
     });
 
     delay_input.addEventListener("input", (event) => {
