@@ -548,7 +548,7 @@
         try {
           const questionSelector = document.querySelector("#mathBlock");
           questionData = JSON.parse(event.data.response);
-          screenshotData = captureScreenshot(questionSelector);
+          screenshotData = await captureScreenshot(questionSelector);
           console.log("Screenshot Data:", screenshotData);
           console.log("Question data received");
         } catch (error) {
