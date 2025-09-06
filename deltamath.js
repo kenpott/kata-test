@@ -575,7 +575,7 @@
         autoAnswerCheckbox.checked = false;
       }
       settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoSolve(enabled);
+      toggleHandlers.autoAnswer(enabled);
     });
 
     autoSolve_toggle.addEventListener("change", (event) => {
@@ -584,7 +584,7 @@
       autoSolveCheckbox.checked = enabled;
       settings.autoAnswer.enabled = enabled;
       settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoAnswer(enabled);
+      toggleHandlers.autoSolve(enabled);
     });
 
     getAnswer_button.addEventListener("click", async () => {
