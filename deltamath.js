@@ -598,10 +598,10 @@
       const questionSelector = document.querySelector("#mathBlock");
       screenshotData = await captureScreenshot(questionSelector); // should not be used for final
       console.log("Solving with screenshot!");
-      answer = await Solve(screenshotData);
+      await Solve(screenshotData);
 
       const answerNotifier = promptNotification();
-      answerNotifier.showNotification(answer, {
+      answerNotifier.showNotification(currentAnswer, {
         temporary: false,
       });
 
@@ -835,6 +835,7 @@
           temporary: false,
         });
       }
+      currentAnswer = parsed.answer;
       return parsed.answer;
     } catch (error) {
       console.error("Solve error:", error);
