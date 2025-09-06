@@ -810,13 +810,13 @@
       solvingNotification.showNotification("Solving...");
 
       let payload;
-      if (Array.isArray(data)) {
+      if (typeof data === "object" && data !== null) {
         payload = {
-          text: data,
+          text: JSON.stringify(data),
         };
       } else {
         payload = {
-          text: data,
+          text: String(data),
         };
       }
 
