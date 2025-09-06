@@ -429,7 +429,7 @@
     const autoSolve_toggle = document.querySelector("#autoSolveCheckbox");
     const getAnswer_button = document.querySelector("#getAnswerButton");
     const autoAnswer_toggle = document.querySelector("#autoAnswerCheckbox");
-    const delay_input = document.querySelector("#delayInput");
+    const delay_input = document.querySelector("#delay");
 
     const toggleHandlers = {
       autoSolve: async (enabled) => {
@@ -444,25 +444,16 @@
           notifier.showNotification(currentAnswer, {
             temporary: false,
           });
-          if (settings.autoAnswer.enabled) {
-            scheduleAutoAnswer();
-          }
           return;
         }
 
         if (questionData) {
           await Solve(questionData);
-          if (settings.autoAnswer.enabled && currentAnswer) {
-            scheduleAutoAnswer();
-          }
         }
       },
       autoAnswer: (enabled) => {
         if (enabled) {
           console.log("Auto-answer enabled");
-          if (currentAnswer) {
-            scheduleAutoAnswer();
-          }
         } else {
           console.log("Auto-answer disabled");
         }
@@ -565,13 +556,7 @@
           console.warn("Failed to parse Problem-Data-XHR response:", error);
           return;
         }
-
-        if (settings.autoSolve.enabled) {
-          await Solve(questionData);
-          if (settings.autoAnswer.enabled && currentAnswer) {
-            scheduleAutoAnswer();
-          }
-        }
+        await Solve(questionData);
       }
     });
 
@@ -585,31 +570,19 @@
 
     autoAnswer_toggle.addEventListener("change", (event) => {
       const enabled = event.target.checked;
-      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-
-      if (enabled) {
-        autoSolveCheckbox.checked = true;
-        settings.autoSolve.enabled = true;
-        settings.autoAnswer.enabled = true;
-        toggleHandlers.autoSolve(true);
-        toggleHandlers.autoAnswer(true);
-      } else {
-        settings.autoAnswer.enabled = false;
-        toggleHandlers.autoAnswer(false);
+      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
+        autoAnswerCheckbox.checked = false;
       }
+      settings.autoSolve.enabled = enabled;
+      toggleHandlers.au(enabled);
     });
 
     autoSolve_toggle.addEventListener("change", (event) => {
+      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
       const enabled = event.target.checked;
-
-      if (!enabled) {
-        const autoAnswerCheckbox = document.querySelector(
-          "#autoAnswerCheckbox"
-        );
-        autoAnswerCheckbox.checked = false;
-        settings.autoAnswer.enabled = false;
-      }
-
+      autoSolveCheckbox.checked = enabled;
+      settings.autoAnswer.enabled = enabled;
       settings.autoSolve.enabled = enabled;
       toggleHandlers.autoSolve(enabled);
     });
@@ -645,48 +618,6 @@
       settings.autoAnswer.subSettings.delay = parseFloat(level);
       delay_text.textContent = level;
     });
-
-    function scheduleAutoAnswer() {
-      console.log(
-        `Scheduling auto-answer in ${settings.autoAnswer.subSettings.delay} seconds`
-      );
-
-      setTimeout(() => {
-        if (settings.autoAnswer.enabled && currentAnswer) {
-          submitAnswer(currentAnswer);
-        }
-      }, settings.autoAnswer.subSettings.delay * 1000);
-    }
-
-    function submitAnswer(answer) {
-      console.log("Auto-submitting answer:", answer);
-
-      const answerInput = document.querySelector(
-        'input[type="text"], textarea, [contenteditable="true"]'
-      );
-      if (answerInput) {
-        if (answerInput.contentEditable === "true") {
-          answerInput.textContent = answer;
-        } else {
-          answerInput.value = answer;
-        }
-
-        answerInput.dispatchEvent(new Event("input", { bubbles: true }));
-        answerInput.dispatchEvent(new Event("change", { bubbles: true }));
-
-        setTimeout(() => {
-          const submitButton = document.querySelector(
-            'button[type="submit"], input[type="submit"], button:contains("Submit"), button:contains("Check")'
-          );
-          if (submitButton) {
-            submitButton.click();
-            console.log("Answer submitted automatically");
-          }
-        }, 100);
-      } else {
-        console.warn("Could not find answer input field for auto-submission");
-      }
-    }
   }
 
   function xhrInterceptor() {
@@ -724,8 +655,8 @@
             );
             const autoSolveCheckbox =
               document.querySelector("#autoSolveCheckbox");
-            if (autoAnswerCheckbox) autoAnswerCheckbox.checked = false;
-            if (autoSolveCheckbox) autoSolveCheckbox.checked = false;
+            autoAnswerCheckbox.enabled = false;
+            autoSolveCheckbox.enabled = false;
             settings.autoAnswer.enabled = false;
             settings.autoSolve.enabled = false;
           }
@@ -898,15 +829,13 @@
         }
       );
       const parsed = await result.json();
-      currentAnswer = parsed.answer;
-
       if (settings.autoSolve.enabled === true) {
         const answerNotification = promptNotification();
         answerNotification.showNotification(parsed.answer, {
-          temporary: !settings.autoAnswer.enabled,
+          temporary: false,
         });
       }
-
+      currentAnswer = parsed.answer;
       return parsed.answer;
     } catch (error) {
       console.error("Solve error:", error);
