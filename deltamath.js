@@ -41,7 +41,13 @@
             <span class="slider"></span>
           </label>
         </div>
-        <div class="subSettings"></div>
+        <div class="subSettings active" id="get-answer">
+          <div class="container">
+            <button id="getAnswerButton">
+              <span class="">Get Answer</span>
+            </button>
+          </div>
+        </div>
       </li>
       <li class="item">
         <div class="setting active" id="auto-answer">
@@ -109,6 +115,10 @@
   --font-family: 'Inter', Arial, sans-serif;
   --font-size-h1: 1.2em;
   --font-size-plan: 0.9em;
+
+  --button-bg: ##18181b;
+  --button-border: #26262a;
+  --button-border-hover: #8b5cf6;
 
   --switch-width: 28px;
   --switch-height: 1em;
@@ -274,6 +284,22 @@
   padding: 10px 0;
 }
 
+.popup #getAnswerButton {
+  display: block;
+  background-color: var(--button-bg);
+  padding: 2px 65px;
+  border-radius: 8px;
+  border: 1px solid var(--button-border);
+}
+
+.popup #getAnswerButton:hover {
+  border-color: var(--button-border-hover);  
+}
+
+.popup #getAnswerButton span {
+  font-size: small;
+}
+
 .popup .switch {
   position: relative;
   display: inline-block;
@@ -392,6 +418,7 @@
     const popup = document.querySelector(".popup");
     const status_dislay = document.querySelector(".status");
     const autoSolve_toggle = document.querySelector("#autoSolveCheckbox");
+    const getAnswer_button = document.querySelector("#getAnswerButton");
     const autoAnswer_toggle = document.querySelector("#autoAnswerCheckbox");
     const delay_input = document.querySelector("#delay");
 
@@ -403,7 +430,7 @@
         }
         console.log("Auto-solve enabled");
 
-        if (currentAnswer) {
+        if (currentAnswer !== null) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
             temporary: false,
@@ -504,6 +531,7 @@
     }
 
     let questionData;
+    let screenshotData;
     let currentAnswer;
 
     window.addEventListener("message", async (event) => {
@@ -511,7 +539,10 @@
         currentAnswer = null;
 
         try {
+          const questionSelector = document.querySelector("#mathBlock");
           questionData = JSON.parse(event.data.response);
+          screenshotData = captureScreenshot(questionSelector);
+          console.log("Screenshot Data:", screenshotData);
           console.log("Question data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
@@ -546,6 +577,20 @@
       settings.autoAnswer.enabled = enabled;
       settings.autoSolve.enabled = enabled;
       toggleHandlers.autoAnswer(enabled);
+    });
+
+    getAnswer_button.addEventListener("click", async (event) => {
+      if (currentAnswer !== null) {
+        const notifier = promptNotification();
+        notifier.showNotification(currentAnswer, {
+          temporary: false,
+        });
+        return;
+      }
+
+      if (questionData) {
+        await Solve(questionData);
+      }
     });
 
     delay_input.addEventListener("input", (event) => {
@@ -586,7 +631,6 @@
         } else if (this._url.includes("check_answer")) {
           const response = JSON.parse(this.responseText);
           if (response.skillComplete === true) {
-            // assignment is complete
             const autoAnswerCheckbox = document.querySelector(
               "#autoAnswerCheckbox"
             );
@@ -726,8 +770,14 @@
     return { showNotification };
   }
 
+  async function captureScreenshot(selector) {
+    html2canvas(selector).then((canvas) => {
+      const base64Data = canvas.toDataUrl();
+      return base64Data;
+    });
+  }
+
   async function Solve(data) {
-    // Check if already solving before starting
     if (isSolving) {
       console.log("Solve request blocked: already solving");
       return;
