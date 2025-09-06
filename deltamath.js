@@ -550,7 +550,7 @@
         try {
           const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
           questionData = JSON.parse(event.data.response);
-          screenshotData = await captureScreenshot(questionSelector);
+          // screenshotData = await captureScreenshot(questionSelector); // save for when question loads
           console.log("Question data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
