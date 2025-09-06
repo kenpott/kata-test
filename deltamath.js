@@ -779,7 +779,7 @@
 
   async function captureScreenshot(selector) {
     html2canvas(selector).then((canvas) => {
-      const base64Data = canvas.toDataUrl();
+      const base64Data = canvas.toDataURL('image/png');
       return base64Data;
     });
   }
