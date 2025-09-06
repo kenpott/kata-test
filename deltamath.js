@@ -548,10 +548,9 @@
         currentAnswer = null;
 
         try {
-          const questionSelector = document.querySelector("#mathBlock");
+          const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
           questionData = JSON.parse(event.data.response);
           screenshotData = await captureScreenshot(questionSelector);
-          console.log("Screenshot Data:", screenshotData);
           console.log("Question data received");
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
@@ -588,7 +587,7 @@
       toggleHandlers.autoAnswer(enabled);
     });
 
-    getAnswer_button.addEventListener("click", async (event) => {
+    getAnswer_button.addEventListener("click", async () => {
       if (currentAnswer !== null) {
         const notifier = promptNotification();
         notifier.showNotification(currentAnswer, {
@@ -596,10 +595,13 @@
         });
         return;
       }
+      const questionSelector = document.querySelector("mathBlock");
+      await captureScreenshot(questionSelector);
 
-      if (questionData) {
+      if (questionData !== null) {
         await Solve(questionData);
       }
+
     });
 
     delay_input.addEventListener("input", (event) => {
@@ -782,6 +784,7 @@
   async function captureScreenshot(element) {
     const canvas = await html2canvas(element);
     const base64Data = canvas.toDataURL("image/png");
+    console.log("Captured Screenshot: ", base64Data);
     return base64Data;
   }
 
