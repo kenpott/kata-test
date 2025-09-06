@@ -439,7 +439,7 @@
         }
         console.log("Auto-solve enabled");
 
-        if (currentAnswer !== null) {
+        if (currentAnswer) {
           const notifier = promptNotification();
           notifier.showNotification(currentAnswer, {
             temporary: false,
@@ -588,7 +588,7 @@
     });
 
     getAnswer_button.addEventListener("click", async () => {
-      if (currentAnswer !== null) {
+      if (currentAnswer) {
         const notifier = promptNotification();
         notifier.showNotification(currentAnswer, {
           temporary: false,
@@ -606,7 +606,7 @@
       });
 
       /** Temporary
-      if (questionData !== null) {
+      if (questionData) {
         await Solve(questionData);
       }
       */
