@@ -67,9 +67,11 @@
           </label>
         </div>
         <div class="subSettings active" id="solve-mode">
-          <span>Mode</span>
-          <div class="mode-popup">
-            <a id="selected-mode">Default</a>
+          <div class="container">
+            <span>Mode</span>
+            <div class="mode-popup">
+              <a id="selected-mode">Default</a>
+            </div>
           </div>
         </div>
         <div class="subSettings active" id="get-answer">
@@ -314,7 +316,7 @@
   padding: 10px 0;
 }
 
-.popup #solveModeDropdown {
+.popup #solveModeDropdown .container {
     display: flex;
     justify-content: space-between;
 }
