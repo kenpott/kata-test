@@ -66,23 +66,11 @@
             <span class="slider"></span>
           </label>
         </div>
-       <div class="subSettings active" id="solve-mode">
-        <span>Solve Mode</span>
-        <div class="theme-popup">
-          <input type="radio" name="mode" id="default" checked>
-          <input type="radio" name="mode" id="screenshot">
-
-          <input type="checkbox" id="checkbox">
-          <label for="checkbox" class="theme-popup__button">Mode</label>
-
-          <div class="theme-popup__list-container">
-            <ul class="theme-popup__list">
-              <li><label for="default"><span>JSON</span></label></li>
-              <li><label for="screenshot"><span>Screenshot</span></label></li>
-            </ul>
+        <div class="subSettings active" id="solve-mode">
+          <span>Mode</span>
+          <div class="mode-popup">
+            <a id="selected-mode">Default</a>
           </div>
-        </div>
-      </div>
         </div>
         <div class="subSettings active" id="get-answer">
           <div class="container">
@@ -137,8 +125,8 @@
   --color-text-tertiary: #6b7280;
   --color-text-disabled: #3f3f46;
 
-  --color-free-bg: #2a2a2d;    
-  --color-free-border: #2a2a2d;
+  --color-free-bg: #2a2a2d;     /* same as toggle background */
+  --color-free-border: #2a2a2d; /* matches darker border tone */
   --color-premium-bg: #8b5cf6;
   --color-premium-border: #8b5cf6;
 
@@ -166,16 +154,14 @@
   --switch-height: 1em;
   --switch-knob: 12px;
   --switch-offset: 2px;
-  --color-switch-off: #2a2a2d;       
+  --color-switch-off: #2a2a2d;     
   --color-switch-knob: #8b5cf6;
   --color-switch-on: #8b5cf6;
   --color-switch-knob-active: #18181b;
 
-  --dropdown-bg: #26262a;
-
   --slider-width: 70%;
   --slider-height: 6px;
-  --slider-bg: #26262a;              
+  --slider-bg: #26262a;               
   --slider-border-radius: 999px;
   --slider-fill-color: #8b5cf6;
   --slider-transition: 0.2s;
@@ -328,6 +314,11 @@
   padding: 10px 0;
 }
 
+.popup #solveModeDropdown {
+    display: flex;
+    justify-content: space-between;
+}
+
 .popup #getAnswerButton {
   display: block;
   background-color: var(--button-bg);
@@ -343,109 +334,6 @@
 .popup #getAnswerButton span {
   color: var(--color-text-secondary);
   font-size: small;
-}
-
-/* Solve Mode Popup */
-#solve-mode .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.theme-popup {
-  --popup-text: var(--color-text);
-  --popup-bg: var(--color-free-bg);
-  --popup-hover: var(--dropdown-bg);
-  --popup-active: #b9b9b970;
-  --popup-border: var(--color-border);
-  --popup-radius: 6px;
-  --popup-gap: 0.3em;
-  --popup-padding: 0.5em;
-  --popup-btn-height: 2em;
-  --popup-font: var(--font-family);
-
-  color: var(--popup-text);
-  font-family: var(--popup-font);
-  position: relative;
-  user-select: none;
-  display: inline-block;
-}
-
-.theme-popup input[type="radio"],
-.theme-popup #checkbox,
-.theme-popup__icons svg {
-  display: none;
-}
-
-.theme-popup__button {
-  line-height: var(--popup-btn-height);
-  background-color: var(--popup-bg);
-  padding: 0 var(--popup-padding);
-  display: inline-flex;
-  align-items: center;
-  column-gap: var(--popup-gap);
-  border-radius: var(--popup-radius);
-  border: 1px solid var(--popup-border);
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-/* Hover & active states */
-.theme-popup__button:hover,
-#checkbox:checked ~ .theme-popup__button {
-  background-color: var(--popup-hover);
-  border-color: var(--color-accent);
-}
-
-/* Dropdown container */
-.theme-popup__list-container {
-  display: none;
-  position: absolute;
-  top: calc(var(--popup-btn-height) + 0.35em);
-  right: 0;
-  background-color: var(--popup-bg);
-  border-radius: var(--popup-radius);
-  min-width: 120px;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-/* Show when checkbox is checked */
-#checkbox:checked ~ .theme-popup__list-container {
-  display: block;
-}
-
-/* Dropdown list items */
-.theme-popup__list {
-  list-style: none;
-  margin: 0;
-  padding: var(--popup-padding);
-  display: flex;
-  flex-direction: column;
-  row-gap: 0.25em;
-}
-
-.theme-popup__list label {
-  display: flex;
-  align-items: center;
-  padding: 0.35em 0.8em;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s;
-}
-
-.theme-popup__list label:hover {
-  background-color: var(--popup-hover);
-}
-
-#default:checked ~ .theme-popup__list-container label[for="default"],
-#screenshot:checked ~ .theme-popup__list-container label[for="screenshot"] {
-  background-color: var(--popup-active);
-  border: 1px solid var(--color-accent);
 }
 
 .popup .switch {
@@ -551,7 +439,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-  `,
+`,
     },
 
     createPopup() {
@@ -682,25 +570,22 @@
         });
       }
 
-      // Solve mode dropdown
-      const radios = document.querySelectorAll('input[name="mode"]');
-      const modeButton = document.getElementById("mode-button");
-      const checkbox = document.getElementById("checkbox");
+      // Solve Mode Dropdown
+      const modeButton = document.querySelector(".mode-popup-button");
+      const modeRadios = document.querySelectorAll('input[name="mode"]');
 
-      radios.forEach((radio) => {
-        radio.addEventListener("change", () => {
-          const selectedLabel = document.querySelector(
-            'label[for="' + radio.id + '"] span'
-          );
-          if (selectedLabel) {
-            modeButton.textContent = selectedLabel.textContent;
-            // update solveMode in settings
-            term.data.updateSetting("solveMode", radio.id);
-          }
-          // close dropdown
-          checkbox.checked = false;
-        });
+      function updateMode() {
+        const selected = document.querySelector('input[name="mode"]:checked');
+        if (selected) {
+          modeButton.textContent =
+            selected.id === "default" ? "JSON" : "Screenshot";
+        }
+      }
+
+      modeRadios.forEach((radio) => {
+        radio.addEventListener("change", updateMode);
       });
+      updateMode();
 
       // Get answer button
       const getAnswerButton = document.querySelector("#getAnswerButton");
