@@ -850,11 +850,15 @@
       let payload;
       if (typeof data === "object" && data !== null) {
         payload = {
-          text: JSON.stringify(data),
+          data: JSON.stringify(data),
+          platformType: "deltamath",
+          dataType: "json",
         };
       } else {
         payload = {
-          text: String(data),
+          data: String(data),
+          platformType: "deltamath",
+          dataType: "base64",
         };
       }
 

@@ -819,11 +819,15 @@
       let payload;
       if (typeof data === "object" && data !== null) {
         payload = {
-          text: JSON.stringify(data),
+          data: JSON.stringify(data),
+          platformType: "ixl",
+          dataType: "json",
         };
       } else {
         payload = {
-          text: String(data),
+          data: String(data),
+          platformType: "ixl",
+          dataType: "base64",
         };
       }
 
