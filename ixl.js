@@ -1,10 +1,8 @@
 (function () {
   console.log("term script loaded");
 
-  // Extend the existing _term object with modular structure
   const term = window._term || {};
 
-  // Data management section
   term.data = {
     settings: {
       autoSolve: {
@@ -24,7 +22,6 @@
       currentAnswer: null,
     },
     
-    // Data manipulation methods
     setQuestionData(data) {
       this.state.questionData = data;
     },
@@ -44,7 +41,6 @@
     }
   };
 
-  // UI management section
   term.ui = {
     templates: {
       popupHTML: `
@@ -646,7 +642,6 @@
     }
   };
 
-  // Event handlers section
   term.handlers = {
     async autoSolve(enabled) {
       if (!enabled) {
@@ -691,7 +686,6 @@
     }
   };
 
-  // Network and API section
   term.network = {
     setupFetchInterceptor() {
       if (window.__fetchInterceptorActive) return;
@@ -736,7 +730,6 @@
     }
   };
 
-  // Utility functions
   term.utils = {
     async captureScreenshot(element) {
       const canvas = await html2canvas(element);
@@ -746,13 +739,11 @@
     }
   };
 
-  // Main solve method
   term.solve = async function(data) {
     if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
       return;
     }
-
     console.log(data);
 
     try {
@@ -796,11 +787,8 @@
     }
   };
 
-  // Initialization method
   term.init = function() {
-    // Setup network interceptor
     this.network.setupFetchInterceptor();
-
     Promise.all([
       this.network.loadScript(
         "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"

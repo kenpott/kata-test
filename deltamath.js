@@ -1,37 +1,57 @@
 (function () {
   console.log("term script loaded");
 
-  const settings = {
-    autoSolve: {
-      enabled: false,
-    },
-    autoAnswer: {
-      enabled: false,
-      subSettings: {
-        delay: 5.0,
+  // Extend the existing _term object with modular structure
+  const term = window._term || {};
+
+  // Data management section
+  term.data = {
+    settings: {
+      autoSolve: {
+        enabled: false,
       },
+      autoAnswer: {
+        enabled: false,
+        subSettings: {
+          delay: 5.0,
+        },
+      },
+    },
+    state: {
+      isSolving: false,
+      questionData: null,
+      screenshotData: null,
+      currentAnswer: null,
+    },
+
+    // Data manipulation methods
+    setQuestionData(data) {
+      this.state.questionData = data;
+    },
+    setScreenshotData(data) {
+      this.state.screenshotData = data;
+    },
+    setCurrentAnswer(answer) {
+      this.state.currentAnswer = answer;
+    },
+    setSolving(solving) {
+      this.state.isSolving = solving;
+    },
+    updateSetting(path, value) {
+      const keys = path.split(".");
+      let obj = this.settings;
+      for (let i = 0; i < keys.length - 1; i++) {
+        obj = obj[keys[i]];
+      }
+      obj[keys[keys.length - 1]] = value;
     },
   };
 
-  let isSolving = false;
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-
-  async function loadScript(url) {
-    let response = await fetch(url);
-    let script = await response.text();
-    eval(script);
-  }
-  loadScript(
-    "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
-  );
-
-  function init() {
-    const termHtml = `
+  // UI management section
+  term.ui = {
+    templates: {
+      // HTML and CSS will be added later
+      termHTML: `
 <div class="popup active">
   <div class="topbar">
     <div class="left">
@@ -92,9 +112,8 @@
     <p class="text">press ctrl to hide</p>
   </div>
 </div>
-  `;
-
-    const termStyle = `
+  `,
+      termCSS: `
  .popup {
   --color-bg: #0f0f0f;
   --color-popup: #18181b;
@@ -412,70 +431,34 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-`;
+`,
+    },
 
-    xhrInterceptor();
+    // UI methods
+    createPopup() {
+      const container = document.createElement("div");
+      container.innerHTML = this.templates.termHTML;
+      document.body.appendChild(container);
 
-    const container = document.createElement("div");
-    container.innerHTML = termHtml;
-    document.body.appendChild(container);
+      const styleEl = document.createElement("style");
+      styleEl.textContent = this.templates.termCSS;
+      document.head.appendChild(styleEl);
+    },
 
-    const styleEl = document.createElement("style");
-    styleEl.textContent = termStyle;
-    document.head.appendChild(styleEl);
+    togglePopup() {
+      document.querySelector(".popup").classList.toggle("active");
+    },
 
-    const popup = document.querySelector(".popup");
-    const status_dislay = document.querySelector(".status");
-    const autoSolve_toggle = document.querySelector("#autoSolveCheckbox");
-    const getAnswer_button = document.querySelector("#getAnswerButton");
-    const autoAnswer_toggle = document.querySelector("#autoAnswerCheckbox");
-    const delay_input = document.querySelector("#delay");
-
-    const toggleHandlers = {
-      autoSolve: async (enabled) => {
-        if (!enabled) {
-          console.log("Auto-solve disabled");
-          return;
-        }
-        console.log("Auto-solve enabled");
-
-        if (currentAnswer) {
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer, {
-            temporary: false,
-          });
-          return;
-        }
-
-        if (questionData) {
-          await Solve(questionData);
-        }
-      },
-      autoAnswer: (enabled) => {
-        if (enabled) {
-          console.log("Auto-answer enabled");
-        } else {
-          console.log("Auto-answer disabled");
-        }
-      },
-    };
-
-    // Toggle status by fetching server
-
-    //
-
-    dragElement(popup);
-
-    function dragElement(elmnt) {
+    makeDraggable(element) {
       let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
 
       // Desktop
-      elmnt.onmousedown = dragMouseDown;
+      element.onmousedown = dragMouseDown;
       // Mobile
-      elmnt.ontouchstart = dragTouchStart;
+      element.ontouchstart = dragTouchStart;
 
       function dragMouseDown(e) {
         if (
@@ -516,8 +499,8 @@
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+        element.style.top = element.offsetTop - pos2 + "px";
+        element.style.left = element.offsetLeft - pos1 + "px";
       }
 
       function elementDragTouch(e) {
@@ -527,8 +510,8 @@
         pos2 = pos4 - touch.clientY;
         pos3 = touch.clientX;
         pos4 = touch.clientY;
-        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+        element.style.top = element.offsetTop - pos2 + "px";
+        element.style.left = element.offsetLeft - pos1 + "px";
       }
 
       function closeDragElement() {
@@ -537,171 +520,125 @@
         document.ontouchend = null;
         document.ontouchmove = null;
       }
-    }
+    },
 
-    let questionData;
-    let screenshotData;
-    let currentAnswer;
-
-    window.addEventListener("message", async (event) => {
-      if (event.data.type === "Problem-Data-XHR") {
-        currentAnswer = null;
-
-        try {
-          const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
-          questionData = JSON.parse(event.data.response);
-          // screenshotData = await captureScreenshot(questionSelector); // save for when question loads
-          console.log("Question data received");
-        } catch (error) {
-          console.warn("Failed to parse Problem-Data-XHR response:", error);
-          return;
+    setupEventListeners() {
+      // Keyboard toggle
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Control") {
+          this.togglePopup();
         }
-        await Solve(questionData);
-      }
-    });
-
-    // Event listeners for UI
-
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Control") {
-        document.querySelector(".popup").classList.toggle("active");
-      }
-    });
-
-    autoAnswer_toggle.addEventListener("change", (event) => {
-      const enabled = event.target.checked;
-      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
-        autoAnswerCheckbox.checked = false;
-      }
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.au(enabled);
-    });
-
-    autoSolve_toggle.addEventListener("change", (event) => {
-      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-      const enabled = event.target.checked;
-      autoSolveCheckbox.checked = enabled;
-      settings.autoAnswer.enabled = enabled;
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoSolve(enabled);
-    });
-
-    getAnswer_button.addEventListener("click", async () => {
-      if (currentAnswer) {
-        const notifier = promptNotification();
-        notifier.showNotification(currentAnswer, {
-          temporary: false,
-        });
-        return;
-      }
-      const questionSelector = document.querySelector("#mathBlock");
-      screenshotData = await captureScreenshot(questionSelector); // should not be used for final
-      console.log("Solving with screenshot!");
-      const answer_placeholder = await Solve(screenshotData);
-
-      const answerNotifier = promptNotification();
-      answerNotifier.showNotification(answer_placeholder, {
-        temporary: false,
       });
 
-      /** Temporary
-      if (questionData) {
-        await Solve(questionData);
-      }
-      */
-    });
-
-    delay_input.addEventListener("input", (event) => {
-      const level = event.target.value;
-      const delay_text = document.querySelector("#delayValue");
-      settings.autoAnswer.subSettings.delay = parseFloat(level);
-      delay_text.textContent = level;
-    });
-  }
-
-  function xhrInterceptor() {
-    if (window.__xhrInterceptorActive) return;
-    window.__xhrInterceptorActive = true;
-
-    const origOpen = XMLHttpRequest.prototype.open;
-    const origSend = XMLHttpRequest.prototype.send;
-
-    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-      this._url = url;
-      return origOpen.call(this, method, url, ...rest);
-    };
-    XMLHttpRequest.prototype.send = function (body) {
-      this.addEventListener("load", function () {
-        if (this._url.includes("problemByAssignment")) {
-          window.postMessage(
-            {
-              type: "Problem-Data-XHR",
-              url: this.responseURL,
-              response: this.responseText,
-            },
-            "*"
+      // Auto answer toggle
+      const autoAnswerToggle = document.querySelector("#autoAnswerCheckbox");
+      if (autoAnswerToggle) {
+        autoAnswerToggle.addEventListener("change", (event) => {
+          const enabled = event.target.checked;
+          const autoAnswerCheckbox = document.querySelector(
+            "#autoAnswerCheckbox"
           );
-          try {
-            JSON.parse(this.responseText);
-          } catch (error) {
-            console.log("⚠️ Could not parse XHR response as JSON:", error);
+          if (
+            autoAnswerCheckbox.checked &&
+            term.data.settings.autoAnswer.enabled
+          ) {
+            autoAnswerCheckbox.checked = false;
           }
-        } else if (this._url.includes("check_answer")) {
-          const response = JSON.parse(this.responseText);
-          if (response.skillComplete === true) {
-            const autoAnswerCheckbox = document.querySelector(
-              "#autoAnswerCheckbox"
-            );
-            const autoSolveCheckbox =
-              document.querySelector("#autoSolveCheckbox");
-            autoAnswerCheckbox.enabled = false;
-            autoSolveCheckbox.enabled = false;
-            settings.autoAnswer.enabled = false;
-            settings.autoSolve.enabled = false;
+          term.data.updateSetting("autoSolve.enabled", enabled);
+          term.handlers.autoAnswer(enabled);
+        });
+      }
+
+      // Auto solve toggle
+      const autoSolveToggle = document.querySelector("#autoSolveCheckbox");
+      if (autoSolveToggle) {
+        autoSolveToggle.addEventListener("change", (event) => {
+          const autoSolveCheckbox =
+            document.querySelector("#autoSolveCheckbox");
+          const enabled = event.target.checked;
+          autoSolveCheckbox.checked = enabled;
+          term.data.updateSetting("autoAnswer.enabled", enabled);
+          term.data.updateSetting("autoSolve.enabled", enabled);
+          term.handlers.autoSolve(enabled);
+        });
+      }
+
+      // Get answer button
+      const getAnswerButton = document.querySelector("#getAnswerButton");
+      if (getAnswerButton) {
+        getAnswerButton.addEventListener("click", async () => {
+          if (term.data.state.currentAnswer) {
+            term.ui.notifications.show(term.data.state.currentAnswer, {
+              temporary: false,
+            });
+            return;
           }
+          const questionSelector = document.querySelector("#mathBlock");
+          const screenshotData = await term.utils.captureScreenshot(
+            questionSelector
+          );
+          term.data.setScreenshotData(screenshotData);
+          console.log("Solving with screenshot!");
+          const answer = await term.solve(screenshotData);
+
+          term.ui.notifications.show(answer, {
+            temporary: false,
+          });
+        });
+      }
+
+      // Delay input
+      const delayInput = document.querySelector("#delay");
+      if (delayInput) {
+        delayInput.addEventListener("input", (event) => {
+          const level = event.target.value;
+          const delayText = document.querySelector("#delayValue");
+          term.data.updateSetting(
+            "autoAnswer.subSettings.delay",
+            parseFloat(level)
+          );
+          if (delayText) delayText.textContent = level;
+        });
+      }
+    },
+
+    notifications: {
+      createContainer() {
+        let container = document.querySelector("#notificationContainer");
+        if (!container) {
+          const containerCss = `
+          #notificationContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            z-index: 999999;
+            max-height: 50vh;
+            overflow-y: auto;
+            width: 250px;
+            padding-right: 5px;
+          }
+          `;
+
+          if (!document.querySelector("#notificationContainerStyles")) {
+            const style = document.createElement("style");
+            style.id = "notificationContainerStyles";
+            style.textContent = containerCss;
+            document.head.appendChild(style);
+          }
+
+          const containerHtml = `<div id="notificationContainer"></div>`;
+          document.body.insertAdjacentHTML("beforeend", containerHtml);
+          container = document.querySelector("#notificationContainer");
         }
-      });
-      return origSend.call(this, body);
-    };
-  }
+        return container;
+      },
 
-  function promptNotification() {
-    let container = document.querySelector("#notificationContainer");
-    if (!container) {
-      const containerCss = `
-      #notificationContainer {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 10px;
-        z-index: 999999;
-
-        /* allow scrolling on overflow */
-        max-height: 50vh;
-        overflow-y: auto;
-        width: 250px; /* fixed width */
-        padding-right: 5px; /* avoid scrollbar overlap */
-      }
-    `;
-
-      if (!document.querySelector("#notificationContainerStyles")) {
-        const style = document.createElement("style");
-        style.id = "notificationContainerStyles";
-        style.textContent = containerCss;
-        document.head.appendChild(style);
-      }
-
-      const containerHtml = `<div id="notificationContainer"></div>`;
-      document.body.insertAdjacentHTML("beforeend", containerHtml);
-
-      container = document.querySelector("#notificationContainer");
-    }
-
-    if (!document.querySelector("#answerNotificationStyles")) {
-      const css = `
+      createStyles() {
+        if (!document.querySelector("#answerNotificationStyles")) {
+          const css = `
 .answerNotification {
   --color-popup: #1e1e1e;
   --color-border: #2a2a2a;
@@ -722,8 +659,8 @@
   transform: translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   font-family: var(--font-family);
-  word-wrap: break-word; /* wrap long text */
-  white-space: pre-wrap; /* preserve line breaks */
+  word-wrap: break-word;
+  white-space: pre-wrap;
   border: 1px solid var(--color-border);
 }
 
@@ -745,69 +682,178 @@
 .answerNotification button:hover {
   color: var(--color-accent);
 }
-`;
+          `;
 
-      const style = document.createElement("style");
-      style.id = "answerNotificationStyles";
-      style.textContent = css;
-      document.head.appendChild(style);
-    }
+          const style = document.createElement("style");
+          style.id = "answerNotificationStyles";
+          style.textContent = css;
+          document.head.appendChild(style);
+        }
+      },
 
-    function showNotification(
-      text,
-      options = { temporary: true, duration: 5000 }
-    ) {
-      const html = `
-      <div class="answerNotification">
-        <span class="answerNotificationText">${text}</span>
-        <button class="answerNotificationClose">✖</button>
-      </div>
-    `;
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
-      const notification = tempDiv.firstElementChild;
+      show(text, options = { temporary: true, duration: 5000 }) {
+        const container = this.createContainer();
+        this.createStyles();
 
-      const closeBtn = notification.querySelector(".answerNotificationClose");
-      if (options.temporary) closeBtn.style.display = "none";
+        const html = `
+          <div class="answerNotification">
+            <span class="answerNotificationText">${text}</span>
+            <button class="answerNotificationClose">✖</button>
+          </div>
+        `;
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        const notification = tempDiv.firstElementChild;
 
-      closeBtn.onclick = () => {
-        notification.classList.remove("show");
-        setTimeout(() => notification.remove(), 300);
-      };
+        const closeBtn = notification.querySelector(".answerNotificationClose");
+        if (options.temporary) closeBtn.style.display = "none";
 
-      container.appendChild(notification);
-      setTimeout(() => notification.classList.add("show"), 10);
-
-      if (options.temporary) {
-        setTimeout(() => {
+        closeBtn.onclick = () => {
           notification.classList.remove("show");
           setTimeout(() => notification.remove(), 300);
-        }, options.duration || 5000);
+        };
+
+        container.appendChild(notification);
+        setTimeout(() => notification.classList.add("show"), 10);
+
+        if (options.temporary) {
+          setTimeout(() => {
+            notification.classList.remove("show");
+            setTimeout(() => notification.remove(), 300);
+          }, options.duration || 5000);
+        }
+
+        return { showNotification: this.show.bind(this) };
+      },
+    },
+  };
+
+  // Event handlers section
+  term.handlers = {
+    async autoSolve(enabled) {
+      if (!enabled) {
+        console.log("Auto-solve disabled");
+        return;
       }
-    }
+      console.log("Auto-solve enabled");
 
-    return { showNotification };
-  }
+      if (term.data.state.currentAnswer) {
+        term.ui.notifications.show(term.data.state.currentAnswer, {
+          temporary: false,
+        });
+        return;
+      }
 
-  async function captureScreenshot(element) {
-    const canvas = await html2canvas(element);
-    const base64Data = canvas.toDataURL("image/png");
-    console.log("Captured Screenshot: ", base64Data);
-    return base64Data;
-  }
+      if (term.data.state.questionData) {
+        await term.solve(term.data.state.questionData);
+      }
+    },
 
-  async function Solve(data) {
-    if (isSolving) {
+    autoAnswer(enabled) {
+      if (enabled) {
+        console.log("Auto-answer enabled");
+      } else {
+        console.log("Auto-answer disabled");
+      }
+    },
+
+    async handleProblemData(event) {
+      if (event.data.type === "Problem-Data-XHR") {
+        term.data.setCurrentAnswer(null);
+
+        try {
+          const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
+          const questionData = JSON.parse(event.data.response);
+          term.data.setQuestionData(questionData);
+          // const screenshotData = await term.utils.captureScreenshot(questionSelector); // save for when question loads
+          // term.data.setScreenshotData(screenshotData);
+          console.log("Question data received");
+          await term.solve(questionData);
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-XHR response:", error);
+        }
+      }
+    },
+  };
+
+  // Network and API section
+  term.network = {
+    setupXHRInterceptor() {
+      if (window.__xhrInterceptorActive) return;
+      window.__xhrInterceptorActive = true;
+
+      const origOpen = XMLHttpRequest.prototype.open;
+      const origSend = XMLHttpRequest.prototype.send;
+
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        this._url = url;
+        return origOpen.call(this, method, url, ...rest);
+      };
+
+      XMLHttpRequest.prototype.send = function (body) {
+        this.addEventListener("load", function () {
+          if (this._url.includes("problemByAssignment")) {
+            window.postMessage(
+              {
+                type: "Problem-Data-XHR",
+                url: this.responseURL,
+                response: this.responseText,
+              },
+              "*"
+            );
+            try {
+              JSON.parse(this.responseText);
+            } catch (error) {
+              console.log("⚠️ Could not parse XHR response as JSON:", error);
+            }
+          } else if (this._url.includes("check_answer")) {
+            const response = JSON.parse(this.responseText);
+            if (response.skillComplete === true) {
+              const autoAnswerCheckbox = document.querySelector(
+                "#autoAnswerCheckbox"
+              );
+              const autoSolveCheckbox =
+                document.querySelector("#autoSolveCheckbox");
+              if (autoAnswerCheckbox) autoAnswerCheckbox.enabled = false;
+              if (autoSolveCheckbox) autoSolveCheckbox.enabled = false;
+              term.data.updateSetting("autoAnswer.enabled", false);
+              term.data.updateSetting("autoSolve.enabled", false);
+            }
+          }
+        });
+        return origSend.call(this, body);
+      };
+    },
+
+    async loadScript(url) {
+      let response = await fetch(url);
+      let script = await response.text();
+      eval(script);
+    },
+  };
+
+  // Utility functions
+  term.utils = {
+    async captureScreenshot(element) {
+      const canvas = await html2canvas(element);
+      const base64Data = canvas.toDataURL("image/png");
+      console.log("Captured Screenshot: ", base64Data);
+      return base64Data;
+    },
+  };
+
+  // Main solve method
+  term.solve = async function (data) {
+    if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
       return;
     }
 
-    const solvingNotification = promptNotification();
     console.log(data);
 
     try {
-      isSolving = true;
-      solvingNotification.showNotification("Solving...");
+      term.data.setSolving(true);
+      term.ui.notifications.show("Solving...");
 
       let payload;
       if (typeof data === "object" && data !== null) {
@@ -829,19 +875,56 @@
         }
       );
       const parsed = await result.json();
-      if (settings.autoSolve.enabled === true) {
-        const answerNotification = promptNotification();
-        answerNotification.showNotification(parsed.answer, {
+
+      if (term.data.settings.autoSolve.enabled === true) {
+        term.ui.notifications.show(parsed.answer, {
           temporary: false,
         });
       }
-      currentAnswer = parsed.answer;
+
+      term.data.setCurrentAnswer(parsed.answer);
       return parsed.answer;
     } catch (error) {
       console.error("Solve error:", error);
       throw error;
     } finally {
-      isSolving = false;
+      term.data.setSolving(false);
     }
+  };
+
+  // Initialization method
+  term.init = function () {
+    // Setup XHR interceptor
+    this.network.setupXHRInterceptor();
+
+    // Load external scripts
+    this.network.loadScript(
+      "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+    );
+
+    // Create UI (templates will be empty until HTML/CSS added)
+    this.ui.createPopup();
+
+    // Make popup draggable
+    const popup = document.querySelector(".popup");
+    if (popup) {
+      this.ui.makeDraggable(popup);
+    }
+
+    // Setup event listeners
+    this.ui.setupEventListeners();
+
+    // Setup message listener for problem data
+    window.addEventListener("message", this.handlers.handleProblemData);
+  };
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => term.init());
+  } else {
+    term.init();
   }
+
+  // Update the existing window._term with our modular structure
+  Object.assign(window._term, term);
 })();
