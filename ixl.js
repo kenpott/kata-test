@@ -1,22 +1,53 @@
 (function () {
   console.log("term script loaded");
 
-  const settings = {
-    autoSolve: {
-      enabled: false,
-    },
-    autoAnswer: {
-      enabled: false,
-      subSettings: {
-        delay: 5.0,
-        smartScore: 80,
+  // Extend the existing _term object with modular structure
+  const term = window._term || {};
+
+  // Data management section
+  term.data = {
+    settings: {
+      autoSolve: {
+        enabled: false,
+      },
+      autoAnswer: {
+        enabled: false,
+        subSettings: {
+          delay: 5.0,
+          smartScore: 80,
+        },
       },
     },
+    state: {
+      isSolving: false,
+      questionData: null,
+      currentAnswer: null,
+    },
+    
+    // Data manipulation methods
+    setQuestionData(data) {
+      this.state.questionData = data;
+    },
+    setCurrentAnswer(answer) {
+      this.state.currentAnswer = answer;
+    },
+    setSolving(solving) {
+      this.state.isSolving = solving;
+    },
+    updateSetting(path, value) {
+      const keys = path.split('.');
+      let obj = this.settings;
+      for (let i = 0; i < keys.length - 1; i++) {
+        obj = obj[keys[i]];
+      }
+      obj[keys[keys.length - 1]] = value;
+    }
   };
 
-  let isSolving = false;
-
-  const html = `
+  // UI management section
+  term.ui = {
+    templates: {
+      popupHTML: `
 <div class="popup active">
   <div class="topbar">
     <div class="left">
@@ -77,7 +108,7 @@
                 id="smartScore"
                 min="0"
                 max="100"
-                value="80
+                value="80"
                 step="1"
               />
             </div>
@@ -90,11 +121,11 @@
     <p class="text">press ctrl to hide</p>
   </div>
 </div>
-  `;
-
-  const style = `
-  .popup {
-    --color-bg: #1c1c1c;
+      `,
+      
+      popupCSS: `
+.popup {
+  --color-bg: #1c1c1c;
   --color-popup: #1e1e1e;
   --color-border: #2a2a2a;
   --color-text: #cfcfcf; 
@@ -388,73 +419,27 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-  `;
+      `
+    },
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+    // UI methods
+    createPopup() {
+      const container = document.createElement("div");
+      container.innerHTML = this.templates.popupHTML;
+      document.body.appendChild(container);
 
-  function init() {
-    fetchInterceptor();
+      const styleEl = document.createElement("style");
+      styleEl.textContent = this.templates.popupCSS;
+      document.head.appendChild(styleEl);
+    },
 
-    const container = document.createElement("div");
-    container.innerHTML = html;
-    document.body.appendChild(container);
+    togglePopup() {
+      document.querySelector(".popup").classList.toggle("active");
+    },
 
-    const styleEl = document.createElement("style");
-    styleEl.textContent = style;
-    document.head.appendChild(styleEl);
-
-    const popup = document.querySelector(".popup");
-    const status_dislay = document.querySelector(".status");
-    const autoSolve_toggle = document.querySelector("#auto-solve");
-    const autoAnswer_toggle = document.querySelector("#auto-answer");
-    const delay_input = document.querySelector("#delay");
-    const smartScore_input = document.querySelector("#smartScore");
-
-    const toggleHandlers = {
-      autoSolve: async (enabled) => {
-        if (!enabled) {
-          console.log("Auto-solve disabled");
-          return;
-        }
-        console.log("Auto-solve enabled");
-
-        if (currentAnswer) {
-          const notifier = promptNotification();
-          notifier.showNotification(currentAnswer, {
-            temporary: false,
-          });
-          return;
-        }
-
-        if (questionData) {
-          await Solve(questionData);
-        }
-      },
-      autoAnswer: (enabled) => {
-        if (enabled) {
-          console.log("Auto-answer enabled");
-        } else {
-          console.log("Auto-answer disabled");
-        }
-      },
-    };
-
-    // Toggle status by fetching server
-
-    //
-
-    dragElement(popup);
-
-    function dragElement(elmnt) {
-      var pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
-      elmnt.onmousedown = dragMouseDown;
+    makeDraggable(element) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      element.onmousedown = dragMouseDown;
 
       function dragMouseDown(e) {
         if (
@@ -479,164 +464,99 @@
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+        element.style.top = element.offsetTop - pos2 + "px";
+        element.style.left = element.offsetLeft - pos1 + "px";
       }
 
       function closeDragElement() {
         document.onmouseup = null;
         document.onmousemove = null;
       }
-    }
+    },
 
-    let questionData;
-    let currentAnswer;
-
-    window.addEventListener("message", async (event) => {
-      if (event.data.type === "Problem-Data-FETCH") {
-        currentAnswer = null;
-
-        try {
-          questionData = JSON.parse(event.data.response);
-          console.log("Question data received");
-        } catch (error) {
-          console.warn("Failed to parse Problem-Data-FETCH response:", error);
-          return;
+    setupEventListeners() {
+      // Keyboard toggle
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Control") {
+          this.togglePopup();
         }
-        await Solve(questionData);
-      }
-    });
+      });
 
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Control") {
-        document.querySelector(".popup").classList.toggle("active");
-      }
-    });
-
-    autoSolve_toggle.addEventListener("change", (event) => {
-      const enabled = event.target.checked;
-      const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-      if (autoAnswerCheckbox.checked && settings.autoAnswer.enabled) {
-        autoAnswerCheckbox.checked = false;
-      }
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoSolve(enabled);
-    });
-
-    autoAnswer_toggle.addEventListener("change", (event) => {
-      const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-      const enabled = event.target.checked;
-      autoSolveCheckbox.checked = enabled;
-      settings.autoAnswer.enabled = enabled;
-      settings.autoSolve.enabled = enabled;
-      toggleHandlers.autoAnswer(enabled);
-    });
-
-    delay_input.addEventListener("input", (event) => {
-      const level = event.target.value;
-      const delay_text = document.querySelector("#delayValue");
-      settings.autoAnswer.subSettings.delay = parseFloat(level);
-      delay_text.textContent = level;
-    });
-
-    smartScore_input.addEventListener("input", (event) => {
-      const level = event.target.value;
-      const score_text = document.querySelector("#smartScoreValue");
-      settings.autoAnswer.subSettings.smartScore = parseInt(level);
-      score_text.textContent = level;
-    });
-  }
-
-  function fetchInterceptor() {
-    if (window.__fetchInterceptorActive) return;
-    window.__fetchInterceptorActive = true;
-
-    const { fetch: originalFetch } = window;
-    window.fetch = async (...args) => {
-      let [resource, config] = args;
-      const url = typeof resource === "string" ? resource : resource.url;
-
-      if (url.includes("pose")) {
-        const response = await originalFetch(resource, config);
-        const cloned = response.clone();
-        try {
-          const data = await cloned.json();
-          window.postMessage(
-            {
-              type: "Problem-Data-FETCH",
-              url: response.url,
-              response: JSON.stringify(data),
-            },
-            "*"
-          );
-          console.log("📦 Problem data:", data);
-        } catch (error) {
-          console.log("⚠️ Could not parse response as JSON:", error);
+      // Auto solve toggle
+      document.querySelector("#auto-solve").addEventListener("change", (event) => {
+        const enabled = event.target.checked;
+        const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
+        if (autoAnswerCheckbox.checked && term.data.settings.autoAnswer.enabled) {
+          autoAnswerCheckbox.checked = false;
         }
-        return response;
-      } /* else if (url.includes("check_answer")) { // change to tally perhaps
-        const response = await originalFetch(resource, config);
-        const cloned = response.clone();
-        try {
-          const data = await cloned.json();
-          if (data.skillComplete === true) {
-            // assignment is complete
-            const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-            const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-            autoAnswerCheckbox.checked = false;
-            autoSolveCheckbox.checked = false;
-            settings.autoAnswer.enabled = false;
-            settings.autoSolve.enabled = false;
+        term.data.updateSetting('autoSolve.enabled', enabled);
+        term.handlers.autoSolve(enabled);
+      });
+
+      // Auto answer toggle
+      document.querySelector("#auto-answer").addEventListener("change", (event) => {
+        const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
+        const enabled = event.target.checked;
+        autoSolveCheckbox.checked = enabled;
+        term.data.updateSetting('autoAnswer.enabled', enabled);
+        term.data.updateSetting('autoSolve.enabled', enabled);
+        term.handlers.autoAnswer(enabled);
+      });
+
+      // Delay input
+      document.querySelector("#delay").addEventListener("input", (event) => {
+        const level = event.target.value;
+        const delayText = document.querySelector("#delayValue");
+        term.data.updateSetting('autoAnswer.subSettings.delay', parseFloat(level));
+        delayText.textContent = level;
+      });
+
+      // Smart score input
+      document.querySelector("#smartScore").addEventListener("input", (event) => {
+        const level = event.target.value;
+        const scoreText = document.querySelector("#smartScoreValue");
+        term.data.updateSetting('autoAnswer.subSettings.smartScore', parseInt(level));
+        scoreText.textContent = level;
+      });
+    },
+
+    notifications: {
+      createContainer() {
+        let container = document.querySelector("#notificationContainer");
+        if (!container) {
+          const containerCss = `
+          #notificationContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            z-index: 999999;
+            max-height: 50vh;
+            overflow-y: auto;
+            width: 250px;
+            padding-right: 5px;
           }
-        } catch (error) {
-          console.log(
-            "⚠️ Could not parse check_answer response as JSON:",
-            error
-          );
+          `;
+
+          if (!document.querySelector("#notificationContainerStyles")) {
+            const style = document.createElement("style");
+            style.id = "notificationContainerStyles";
+            style.textContent = containerCss;
+            document.head.appendChild(style);
+          }
+
+          const containerHtml = `<div id="notificationContainer"></div>`;
+          document.body.insertAdjacentHTML("beforeend", containerHtml);
+          container = document.querySelector("#notificationContainer");
         }
-        return response;
-      }
-      */
-      return originalFetch(resource, config);
-    };
-  }
+        return container;
+      },
 
-  function promptNotification() {
-    let container = document.querySelector("#notificationContainer");
-    if (!container) {
-      const containerCss = `
-      #notificationContainer {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 10px;
-        z-index: 999999;
-
-        /* allow scrolling on overflow */
-        max-height: 50vh;
-        overflow-y: auto;
-        width: 250px; /* fixed width */
-        padding-right: 5px; /* avoid scrollbar overlap */
-      }
-    `;
-
-      if (!document.querySelector("#notificationContainerStyles")) {
-        const style = document.createElement("style");
-        style.id = "notificationContainerStyles";
-        style.textContent = containerCss;
-        document.head.appendChild(style);
-      }
-
-      const containerHtml = `<div id="notificationContainer"></div>`;
-      document.body.insertAdjacentHTML("beforeend", containerHtml);
-
-      container = document.querySelector("#notificationContainer");
-    }
-
-    if (!document.querySelector("#answerNotificationStyles")) {
-      const css = `
+      createStyles() {
+        if (!document.querySelector("#answerNotificationStyles")) {
+          const css = `
 .answerNotification {
   --color-popup: #1e1e1e;
   --color-border: #2a2a2a;
@@ -657,8 +577,8 @@
   transform: translateY(20px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   font-family: var(--font-family);
-  word-wrap: break-word; /* wrap long text */
-  white-space: pre-wrap; /* preserve line breaks */
+  word-wrap: break-word;
+  white-space: pre-wrap;
   border: 1px solid var(--color-border);
 }
 
@@ -680,76 +600,177 @@
 .answerNotification button:hover {
   color: var(--color-accent);
 }
-`;
+          `;
 
-      const style = document.createElement("style");
-      style.id = "answerNotificationStyles";
-      style.textContent = css;
-      document.head.appendChild(style);
-    }
+          const style = document.createElement("style");
+          style.id = "answerNotificationStyles";
+          style.textContent = css;
+          document.head.appendChild(style);
+        }
+      },
 
-    function showNotification(
-      text,
-      options = { temporary: true, duration: 5000 }
-    ) {
-      const html = `
-      <div class="answerNotification">
-        <span class="answerNotificationText">${text}</span>
-        <button class="answerNotificationClose">✖</button>
-      </div>
-    `;
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
-      const notification = tempDiv.firstElementChild;
+      show(text, options = { temporary: true, duration: 5000 }) {
+        const container = this.createContainer();
+        this.createStyles();
 
-      const closeBtn = notification.querySelector(".answerNotificationClose");
-      if (options.temporary) closeBtn.style.display = "none";
+        const html = `
+          <div class="answerNotification">
+            <span class="answerNotificationText">${text}</span>
+            <button class="answerNotificationClose">✖</button>
+          </div>
+        `;
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        const notification = tempDiv.firstElementChild;
 
-      closeBtn.onclick = () => {
-        notification.classList.remove("show");
-        setTimeout(() => notification.remove(), 300);
-      };
+        const closeBtn = notification.querySelector(".answerNotificationClose");
+        if (options.temporary) closeBtn.style.display = "none";
 
-      container.appendChild(notification);
-      setTimeout(() => notification.classList.add("show"), 10);
-
-      if (options.temporary) {
-        setTimeout(() => {
+        closeBtn.onclick = () => {
           notification.classList.remove("show");
           setTimeout(() => notification.remove(), 300);
-        }, options.duration || 5000);
+        };
+
+        container.appendChild(notification);
+        setTimeout(() => notification.classList.add("show"), 10);
+
+        if (options.temporary) {
+          setTimeout(() => {
+            notification.classList.remove("show");
+            setTimeout(() => notification.remove(), 300);
+          }, options.duration || 5000);
+        }
+
+        return { showNotification: this.show.bind(this) };
       }
     }
+  };
 
-    return { showNotification };
-  }
+  // Event handlers section
+  term.handlers = {
+    async autoSolve(enabled) {
+      if (!enabled) {
+        console.log("Auto-solve disabled");
+        return;
+      }
+      console.log("Auto-solve enabled");
 
-  async function Solve(data) {
-    // Check if already solving before starting
-    if (isSolving) {
+      if (term.data.state.currentAnswer) {
+        term.ui.notifications.show(term.data.state.currentAnswer, {
+          temporary: false,
+        });
+        return;
+      }
+
+      if (term.data.state.questionData) {
+        await term.solve(term.data.state.questionData);
+      }
+    },
+
+    autoAnswer(enabled) {
+      if (enabled) {
+        console.log("Auto-answer enabled");
+      } else {
+        console.log("Auto-answer disabled");
+      }
+    },
+
+    async handleProblemData(event) {
+      if (event.data.type === "Problem-Data-FETCH") {
+        term.data.setCurrentAnswer(null);
+
+        try {
+          const questionData = JSON.parse(event.data.response);
+          term.data.setQuestionData(questionData);
+          console.log("Question data received");
+          await term.solve(questionData);
+        } catch (error) {
+          console.warn("Failed to parse Problem-Data-FETCH response:", error);
+        }
+      }
+    }
+  };
+
+  // Network and API section
+  term.network = {
+    setupFetchInterceptor() {
+      if (window.__fetchInterceptorActive) return;
+      window.__fetchInterceptorActive = true;
+
+      const { fetch: originalFetch } = window;
+      window.fetch = async (...args) => {
+        let [resource, config] = args;
+        const url = typeof resource === "string" ? resource : resource.url;
+
+        if (url.includes("pose")) {
+          const response = await originalFetch(resource, config);
+          const cloned = response.clone();
+          try {
+            const data = await cloned.json();
+            window.postMessage(
+              {
+                type: "Problem-Data-FETCH",
+                url: response.url,
+                response: JSON.stringify(data),
+              },
+              "*"
+            );
+            console.log("📦 Problem data:", data);
+          } catch (error) {
+            console.log("⚠️ Could not parse response as JSON:", error);
+          }
+          return response;
+        }
+        return originalFetch(resource, config);
+      };
+    },
+
+    async loadScript(url) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+  };
+
+  // Utility functions
+  term.utils = {
+    async captureScreenshot(element) {
+      const canvas = await html2canvas(element);
+      const base64Data = canvas.toDataURL("image/png");
+      console.log("Captured Screenshot: ", base64Data);
+      return base64Data;
+    }
+  };
+
+  // Main solve method
+  term.solve = async function(data) {
+    if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
       return;
     }
 
-    const solvingNotification = promptNotification();
     console.log(data);
 
     try {
-      isSolving = true;
-      solvingNotification.showNotification("Solving...");
+      term.data.setSolving(true);
+      term.ui.notifications.show("Solving...");
 
       let payload;
-      if (Array.isArray(data)) {
+      if (typeof data === "object" && data !== null) {
         payload = {
-          text: data,
+          text: JSON.stringify(data),
         };
       } else {
         payload = {
-          text: data,
+          text: String(data),
         };
       }
 
-      const result = await fetch(
+      const result = await term.fetch(
         "https://term-worker.buyterm-vip.workers.dev/solve",
         {
           method: "POST",
@@ -758,20 +779,46 @@
         }
       );
       const parsed = await result.json();
-      if (settings.autoSolve.enabled === true) {
-        const answerNotification = promptNotification();
-        answerNotification.showNotification(parsed.answer, {
+      
+      if (term.data.settings.autoSolve.enabled === true) {
+        term.ui.notifications.show(parsed.answer, {
           temporary: false,
         });
       }
+      
+      term.data.setCurrentAnswer(parsed.answer);
       return parsed.answer;
     } catch (error) {
       console.error("Solve error:", error);
       throw error;
     } finally {
-      isSolving = false;
+      term.data.setSolving(false);
     }
-  }
-})();
+  };
 
-// use mathjax
+  // Initialization method
+  term.init = function() {
+    // Setup network interceptor
+    this.network.setupFetchInterceptor();
+
+    Promise.all([
+      this.network.loadScript(
+        "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+      ),
+    ]).then(() => {
+      console.log("External scripts loaded and ready!");
+    });
+
+    this.ui.createPopup(); 
+    const popup = document.querySelector(".popup");
+    this.ui.makeDraggable(popup);
+    this.ui.setupEventListeners();
+    window.addEventListener("message", this.handlers.handleProblemData);
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => term.init());
+  } else {
+    term.init();
+  }
+  Object.assign(window._term, term);
+})();
