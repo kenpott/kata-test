@@ -331,6 +331,7 @@
 }
 
 .popup #getAnswerButton span {
+  color: var(--color-text-secondary);
   font-size: small;
 }
 
@@ -440,7 +441,6 @@
       `,
     },
 
-    // UI methods
     createPopup() {
       const container = document.createElement("div");
       container.innerHTML = this.templates.popupHTML;

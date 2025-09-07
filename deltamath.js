@@ -47,7 +47,6 @@
 
   term.ui = {
     templates: {
-      // HTML and CSS will be added later
       termHTML: `
 <div class="popup active">
   <div class="topbar">
@@ -322,6 +321,7 @@
 }
 
 .popup #getAnswerButton span {
+  color: var(--color-text-secondary);
   font-size: small;
 }
 
@@ -850,15 +850,11 @@
       let payload;
       if (typeof data === "object" && data !== null) {
         payload = {
-          data: JSON.stringify(data),
-          platformType: "deltamath",
-          dataType: "json",
+          text: JSON.stringify(data),
         };
       } else {
         payload = {
-          data: String(data),
-          platformType: "deltamath",
-          dataType: "base64",
+          text: String(data),
         };
       }
 
