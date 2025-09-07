@@ -760,8 +760,8 @@
           const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
           const questionData = JSON.parse(event.data.response);
           term.data.setQuestionData(questionData);
-          // const screenshotData = await term.utils.captureScreenshot(questionSelector); // save for when question loads
-          // term.data.setScreenshotData(screenshotData);
+          const screenshotData = await term.utils.captureScreenshot(questionSelector); // save for when question loads
+          term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
           await term.solve(questionData);
         } catch (error) {
