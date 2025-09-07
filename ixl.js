@@ -21,7 +21,7 @@
       questionData: null,
       currentAnswer: null,
     },
-    
+
     setQuestionData(data) {
       this.state.questionData = data;
     },
@@ -32,13 +32,13 @@
       this.state.isSolving = solving;
     },
     updateSetting(path, value) {
-      const keys = path.split('.');
+      const keys = path.split(".");
       let obj = this.settings;
       for (let i = 0; i < keys.length - 1; i++) {
         obj = obj[keys[i]];
       }
       obj[keys[keys.length - 1]] = value;
-    }
+    },
   };
 
   term.ui = {
@@ -58,11 +58,17 @@
         <div class="setting active" id="auto-solve">
           <h4 class="title">Auto Solve</h4>
           <label class="switch">
-            <input type="checkbox" class="toggle" id="autoSolveCheckbox" />
+            <input type="checkbox" class="toggle" id="autoSolveCheckbox"/>
             <span class="slider"></span>
           </label>
         </div>
-        <div class="subSettings"></div>
+        <div class="subSettings active" id="get-answer">
+          <div class="container">
+            <button id="getAnswerButton">
+              <span class="">Get Answer</span>
+            </button>
+          </div>
+        </div>
       </li>
       <li class="item">
         <div class="setting active" id="auto-answer">
@@ -118,7 +124,7 @@
   </div>
 </div>
       `,
-      
+
       popupCSS: `
 .popup {
   --color-bg: #1c1c1c;
@@ -312,6 +318,22 @@
   pointer-events: none;
 }
 
+.popup #getAnswerButton {
+  display: block;
+  background-color: var(--button-bg);
+  padding: 2px 65px;
+  border-radius: 8px;
+  border: 1px solid var(--button-border);
+}
+
+.popup #getAnswerButton:hover {
+  border-color: var(--button-border-hover);  
+}
+
+.popup #getAnswerButton span {
+  font-size: small;
+}
+
 .popup .switch {
   position: relative;
   display: inline-block;
@@ -415,7 +437,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-      `
+      `,
     },
 
     // UI methods
@@ -434,7 +456,10 @@
     },
 
     makeDraggable(element) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      let pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
       element.onmousedown = dragMouseDown;
 
       function dragMouseDown(e) {
@@ -479,41 +504,82 @@
       });
 
       // Auto solve toggle
-      document.querySelector("#auto-solve").addEventListener("change", (event) => {
-        const enabled = event.target.checked;
-        const autoAnswerCheckbox = document.querySelector("#autoAnswerCheckbox");
-        if (autoAnswerCheckbox.checked && term.data.settings.autoAnswer.enabled) {
-          autoAnswerCheckbox.checked = false;
-        }
-        term.data.updateSetting('autoSolve.enabled', enabled);
-        term.handlers.autoSolve(enabled);
-      });
+      document
+        .querySelector("#auto-solve")
+        .addEventListener("change", (event) => {
+          const enabled = event.target.checked;
+          const autoAnswerCheckbox = document.querySelector(
+            "#autoAnswerCheckbox"
+          );
+          if (
+            autoAnswerCheckbox.checked &&
+            term.data.settings.autoAnswer.enabled
+          ) {
+            autoAnswerCheckbox.checked = false;
+          }
+          term.data.updateSetting("autoSolve.enabled", enabled);
+          term.handlers.autoSolve(enabled);
+        });
 
-      // Auto answer toggle
-      document.querySelector("#auto-answer").addEventListener("change", (event) => {
-        const autoSolveCheckbox = document.querySelector("#autoSolveCheckbox");
-        const enabled = event.target.checked;
-        autoSolveCheckbox.checked = enabled;
-        term.data.updateSetting('autoAnswer.enabled', enabled);
-        term.data.updateSetting('autoSolve.enabled', enabled);
-        term.handlers.autoAnswer(enabled);
-      });
+      document
+        .querySelector("#auto-answer")
+        .addEventListener("change", (event) => {
+          const autoSolveCheckbox =
+            document.querySelector("#autoSolveCheckbox");
+          const enabled = event.target.checked;
+          autoSolveCheckbox.checked = enabled;
+          term.data.updateSetting("autoAnswer.enabled", enabled);
+          term.data.updateSetting("autoSolve.enabled", enabled);
+          term.handlers.autoAnswer(enabled);
+        });
+
+      const getAnswerButton = document.querySelector("#getAnswerButton");
+      if (getAnswerButton) {
+        getAnswerButton.addEventListener("click", async () => {
+          if (term.data.state.currentAnswer) {
+            term.ui.notifications.show(term.data.state.currentAnswer, {
+              temporary: false,
+            });
+            return;
+          }
+          /**
+          const questionSelector = document.querySelector("#mathBlock");
+          const screenshotData = await term.utils.captureScreenshot(
+            questionSelector
+          );
+          term.data.setScreenshotData(screenshotData);
+          console.log("Solving with screenshot!");
+          const answer = await term.solve(screenshotData);
+          */
+          term.ui.notifications.show(answer, {
+            temporary: false,
+          });
+        });
+      }
 
       // Delay input
       document.querySelector("#delay").addEventListener("input", (event) => {
         const level = event.target.value;
         const delayText = document.querySelector("#delayValue");
-        term.data.updateSetting('autoAnswer.subSettings.delay', parseFloat(level));
+        term.data.updateSetting(
+          "autoAnswer.subSettings.delay",
+          parseFloat(level)
+        );
         delayText.textContent = level;
       });
 
       // Smart score input
-      document.querySelector("#smartScore").addEventListener("input", (event) => {
-        const level = event.target.value;
-        const scoreText = document.querySelector("#smartScoreValue");
-        term.data.updateSetting('autoAnswer.subSettings.smartScore', parseInt(level));
-        scoreText.textContent = level;
-      });
+      document
+        .querySelector("#smartScore")
+        .addEventListener("input", (event) => {
+          const level = event.target.value;
+          const scoreText = document.querySelector("#smartScoreValue");
+          term.data.updateSetting(
+            "autoAnswer.subSettings.smartScore",
+            parseInt(level)
+          );
+          scoreText.textContent = level;
+        });
     },
 
     notifications: {
@@ -638,8 +704,8 @@
         }
 
         return { showNotification: this.show.bind(this) };
-      }
-    }
+      },
+    },
   };
 
   term.handlers = {
@@ -683,7 +749,7 @@
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
         }
       }
-    }
+    },
   };
 
   term.network = {
@@ -727,7 +793,7 @@
         script.onerror = reject;
         document.head.appendChild(script);
       });
-    }
+    },
   };
 
   term.utils = {
@@ -736,10 +802,10 @@
       const base64Data = canvas.toDataURL("image/png");
       console.log("Captured Screenshot: ", base64Data);
       return base64Data;
-    }
+    },
   };
 
-  term.solve = async function(data) {
+  term.solve = async function (data) {
     if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
       return;
@@ -770,13 +836,13 @@
         }
       );
       const parsed = await result.json();
-      
+
       if (term.data.settings.autoSolve.enabled === true) {
         term.ui.notifications.show(parsed.answer, {
           temporary: false,
         });
       }
-      
+
       term.data.setCurrentAnswer(parsed.answer);
       return parsed.answer;
     } catch (error) {
@@ -787,7 +853,7 @@
     }
   };
 
-  term.init = function() {
+  term.init = function () {
     this.network.setupFetchInterceptor();
     Promise.all([
       this.network.loadScript(
@@ -797,7 +863,7 @@
       console.log("External scripts loaded and ready!");
     });
 
-    this.ui.createPopup(); 
+    this.ui.createPopup();
     const popup = document.querySelector(".popup");
     this.ui.makeDraggable(popup);
     this.ui.setupEventListeners();

@@ -1,10 +1,8 @@
 (function () {
   console.log("term script loaded");
 
-  // Extend the existing _term object with modular structure
   const term = window._term || {};
 
-  // Data management section
   term.data = {
     settings: {
       autoSolve: {
@@ -47,7 +45,6 @@
     },
   };
 
-  // UI management section
   term.ui = {
     templates: {
       // HTML and CSS will be added later
@@ -434,7 +431,6 @@
 `,
     },
 
-    // UI methods
     createPopup() {
       const container = document.createElement("div");
       container.innerHTML = this.templates.termHTML;
@@ -728,7 +724,6 @@
     },
   };
 
-  // Event handlers section
   term.handlers = {
     async autoSolve(enabled) {
       if (!enabled) {
@@ -776,7 +771,6 @@
     },
   };
 
-  // Network and API section
   term.network = {
     setupXHRInterceptor() {
       if (window.__xhrInterceptorActive) return;
@@ -832,7 +826,6 @@
     },
   };
 
-  // Utility functions
   term.utils = {
     async captureScreenshot(element) {
       const canvas = await html2canvas(element);
@@ -842,7 +835,6 @@
     },
   };
 
-  // Main solve method
   term.solve = async function (data) {
     if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
@@ -892,39 +884,29 @@
     }
   };
 
-  // Initialization method
   term.init = function () {
-    // Setup XHR interceptor
     this.network.setupXHRInterceptor();
-
-    // Load external scripts
     this.network.loadScript(
       "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
     );
 
-    // Create UI (templates will be empty until HTML/CSS added)
     this.ui.createPopup();
 
-    // Make popup draggable
     const popup = document.querySelector(".popup");
     if (popup) {
       this.ui.makeDraggable(popup);
     }
 
-    // Setup event listeners
     this.ui.setupEventListeners();
 
-    // Setup message listener for problem data
     window.addEventListener("message", this.handlers.handleProblemData);
   };
 
-  // Initialize when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => term.init());
   } else {
     term.init();
   }
 
-  // Update the existing window._term with our modular structure
   Object.assign(window._term, term);
 })();
