@@ -164,6 +164,9 @@
         --color-button-border: rgba(255, 255, 255, 0.1);
         --color-button-border-hover: rgba(255, 255, 255, 0.1);
 
+        --glass-effect: saturate(180%) blur(20px);
+        --glass-bg: rgba(255, 255, 255, 0.08);
+
         --popup-width: 260px;
         --popup-height: 300px;
         --popup-radius: 20px;
@@ -391,9 +394,10 @@
       .popup #getAnswerButton {
         display: block;
         background-color: var(--color-button-bg);
-        padding: 2px 65px;
+        padding: 4px 65px;
         border-radius: 8px;
         border: 1px solid var(--color-button-border);
+        width: 100%;
       }
 
       .popup #getAnswerButton:hover {
@@ -403,7 +407,7 @@
 
       .popup #getAnswerButton span {
         color: var(--color-text-secondary);
-        font-size: small;
+        font-size: smaller;
       }
 
       .popup .switch {
