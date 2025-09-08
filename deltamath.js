@@ -946,7 +946,7 @@
 
     try {
       term.data.setSolving(true);
-      term.ui.notifications.show("Solving...");
+      term.ui.notifications.show("Solving...", mode);
 
       const payload = {
         data: isJsonMode ? JSON.stringify(inputData) : String(inputData),
