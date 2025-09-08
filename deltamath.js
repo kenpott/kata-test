@@ -156,6 +156,7 @@
 
   --dropdown-container-bg: #2a2a2d;
   --dropdown-container-border: #18181b;
+  --dropdown-container-hover: #18181b;
 
   --switch-width: 28px;
   --switch-height: 1em;
@@ -351,6 +352,7 @@
   border-radius: 6px;
   flex-direction: column;
   z-index: 1000;
+  cursor: pointer;
 }
 
 .dropdown-container span {
