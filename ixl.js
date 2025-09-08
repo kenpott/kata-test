@@ -620,16 +620,13 @@
       if (autoAnswerToggle) {
         autoAnswerToggle.addEventListener("change", (event) => {
           const enabled = event.target.checked;
-          const autoAnswerCheckbox = document.querySelector(
-            "#autoAnswerCheckbox"
-          );
-          if (
-            autoAnswerCheckbox.checked &&
-            term.data.settings.autoAnswer.enabled
-          ) {
-            autoAnswerCheckbox.checked = false;
+          autoAnswerCheckbox.checked = enabled;
+          if (autoSolveToggle.checked !== enabled) {
+            autoSolveToggle.checked = enabled;
+            term.data.updateSetting("autoAnswer.enabled", enabled);
+            term.handlers.autoAnswer(enabled);
           }
-          term.data.updateSetting("autoSolve.enabled", enabled);
+          term.data.updateSetting("autoAnswer.enabled", enabled);
           term.handlers.autoAnswer(enabled);
         });
       }
@@ -638,15 +635,13 @@
       const autoSolveToggle = document.querySelector("#autoSolveCheckbox");
       if (autoSolveToggle) {
         autoSolveToggle.addEventListener("change", (event) => {
-          const autoSolveCheckbox =
-            document.querySelector("#autoSolveCheckbox");
           const enabled = event.target.checked;
           autoSolveCheckbox.checked = enabled;
-          term.data.updateSetting("autoAnswer.enabled", enabled);
           term.data.updateSetting("autoSolve.enabled", enabled);
           term.handlers.autoSolve(enabled);
         });
       }
+
       // Solve Mode
       const modeButton = document.getElementById("selected-mode");
       const dropdownContainer = document.querySelector(".dropdown-container");
@@ -666,7 +661,9 @@
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {
         getAnswerButton.addEventListener("click", async () => {
-          const questionSelector = document.querySelector(".practice-views-root");
+          const questionSelector = document.querySelector(
+            ".practice-views-root"
+          );
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
@@ -853,10 +850,14 @@
         term.data.setCurrentAnswer(null);
 
         try {
-          const questionSelector = document.querySelector(".practice-views-root");
+          const questionSelector = document.querySelector(
+            ".practice-views-root"
+          );
           const questionData = JSON.parse(event.data.response);
           term.data.setQuestionData(questionData);
-          const screenshotData = await term.utils.captureScreenshot(questionSelector);
+          const screenshotData = await term.utils.captureScreenshot(
+            questionSelector
+          );
           term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
           await term.solve(questionData);
