@@ -647,20 +647,13 @@
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {
         getAnswerButton.addEventListener("click", async () => {
-          if (term.data.state.currentAnswer) {
-            term.ui.notifications.show(term.data.state.currentAnswer, {
-              temporary: false,
-            });
-            return;
-          }
           const questionSelector = document.querySelector("#mathBlock");
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
           term.data.setScreenshotData(screenshotData);
-          console.log("Solving with screenshot!");
           const answer = await term.solve();
-
+          
           term.ui.notifications.show(answer, {
             temporary: false,
           });
