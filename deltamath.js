@@ -124,27 +124,27 @@
 </div>
   `,
       termCSS: `
- .popup {
+      .popup {
   --color-bg: #0f0f0f;
   --color-popup: #18181b;
   --color-border: #1f1f22;
-  --color-text: #f5f5f5; 
-  --color-text-secondary: #9ca3af; 
-  --color-text-tertiary: #6b7280;
-  --color-text-disabled: #3f3f46;
+  --color-text: #e0e0e0;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #707070;
+  --color-text-disabled: #383838;
 
-  --color-free-bg: #2a2a2d;   
-  --color-free-border: #2a2a2d; 
-  --color-premium-bg: #8b5cf6;
-  --color-premium-border: #8b5cf6;
+  --color-free-bg: #2a2a2d;
+  --color-free-border: #2a2a2d;
+  --color-premium-bg: #007bff; /* New accent color: Blue */
+  --color-premium-border: #007bff;
 
   --color-status-online: #22c55e;
   --color-status-offline: #ef4444;
   --color-status-idle: #52525b;
 
-  --color-accent: #8b5cf6;
-  --color-accent-hover: #7c3aed;
-  --color-accent-light: #a78bfa;
+  --color-accent: #007bff; /* New accent color: Blue */
+  --color-accent-hover: #0056b3;
+  --color-accent-light: #52a8ff;
 
   --popup-width: 260px;
   --popup-height: 300px;
@@ -160,31 +160,31 @@
 
   --dropdown-container-bg: #2a2a2d;
   --dropdown-container-border: #18181b;
-  --dropdown-container-hover: #18181b;
+  --dropdown-container-hover: #1f1f22;
 
   --switch-width: 28px;
   --switch-height: 1em;
   --switch-knob: 12px;
   --switch-offset: 2px;
-  --color-switch-off: #2a2a2d;     
-  --color-switch-knob: #8b5cf6;
-  --color-switch-on: #8b5cf6;
-  --color-switch-knob-active: #18181b;
+  --color-switch-off: #2a2a2d;
+  --color-switch-knob: #e0e0e0; /* Changed to match text */
+  --color-switch-on: #007bff; /* New accent color: Blue */
+  --color-switch-knob-active: #e0e0e0; /* Changed to match text */
 
   --slider-width: 70%;
   --slider-height: 6px;
-  --slider-bg: #26262a;               
+  --slider-bg: #26262a;
   --slider-border-radius: 999px;
-  --slider-fill-color: #8b5cf6;
+  --slider-fill-color: #007bff; /* New accent color: Blue */
   --slider-transition: 0.2s;
-  --slider-value-color: #f5f5f5;
+  --slider-value-color: #e0e0e0;
   --slider-value-gap: 12px;
 
   all: initial;
   font-family: var(--font-family);
   padding: 0;
   margin: 0;
-  
+
   width: var(--popup-width);
   height: var(--popup-height);
   border-radius: var(--popup-radius);
@@ -343,14 +343,14 @@
 }
 
 .dropdown-wrapper:hover .dropdown-container {
-  display: flex; 
+  display: flex;
 }
 
 .dropdown-wrapper {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end; 
+  align-items: flex-end;
 }
 
 .dropdown-container {
@@ -387,7 +387,7 @@
 }
 
 .popup #getAnswerButton:hover {
-  background-color: var(--button-bg-hover);  
+  background-color: var(--button-bg-hover);
 }
 
 .popup #getAnswerButton span {
@@ -498,7 +498,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-  `,
+      `,
     },
 
     createPopup() {
@@ -653,7 +653,7 @@
           );
           term.data.setScreenshotData(screenshotData);
           const answer = await term.solve();
-          
+
           term.ui.notifications.show(answer, {
             temporary: false,
           });
