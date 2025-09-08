@@ -317,13 +317,9 @@
 }
 
 #solve-mode .container {
-    display: flex;
-    justify-content: space-between;
-}
-
-#solve-mod > div > span {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-content: center;
 }
 
 #selected-mode {
