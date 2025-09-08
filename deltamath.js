@@ -355,7 +355,7 @@
 .dropdown-container {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);        
+  top: 100%;       
   right: 0;
   background-color: var(--color-button-bg);
   border: 1px solid var(--color-button-border);
