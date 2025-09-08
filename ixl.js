@@ -49,7 +49,7 @@
 
   term.ui = {
     templates: {
-      popupHTML: `
+      termHTML: `
 <div class="popup active">
   <div class="topbar">
     <div class="left">
@@ -143,7 +143,7 @@
 </div>
       `,
 
-      popupCSS: `
+      termCSS: `
       .popup {
         --color-bg: #101010; 
         --color-popup: #202022;
