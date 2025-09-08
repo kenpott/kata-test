@@ -321,13 +321,13 @@
     justify-content: space-between;
 }
 
-#solve-mod .container .span {
+#solve-mod > div > span {
   display: flex;
   align-items: center;
 }
 
 #selected-mode {
-    padding: 4px 16px;
+    padding: 4px 8px;
     border: 1px solid var(--button-border);
     border-radius: 8px;
 }
