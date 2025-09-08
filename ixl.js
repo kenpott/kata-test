@@ -666,7 +666,7 @@
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {
         getAnswerButton.addEventListener("click", async () => {
-          const questionSelector = document.querySelector("#mathBlock");
+          const questionSelector = document.querySelector("practice-views-root");
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
