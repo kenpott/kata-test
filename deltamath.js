@@ -124,58 +124,61 @@
 </div>
   `,
       termCSS: `
- .popup {
-  --color-bg: #0f0f0f;
-  --color-popup: #18181b;
-  --color-border: #1f1f22;
-  --color-text: #f5f5f5; 
-  --color-text-secondary: #9ca3af; 
-  --color-text-tertiary: #6b7280;
-  --color-text-disabled: #3f3f46;
+      .popup {
+  --color-bg: #101010; /* Very dark background, almost black */
+  --color-popup: #202022; /* Slightly elevated background for the popup */
+  --color-border: rgba(255, 255, 255, 0.05); /* Very subtle white border */
+  --color-text: #f5f5f5; /* Light text for high contrast */
+  --color-text-secondary: #999999; /* Muted gray for secondary text */
+  --color-text-tertiary: #666666; /* Darker gray for less important text */
+  --color-text-disabled: #333333; /* Very dark for disabled elements */
 
-  --color-free-bg: #2a2a2d;   
-  --color-free-border: #2a2a2d; 
-  --color-premium-bg: #8b5cf6;
-  --color-premium-border: #8b5cf6;
+  /* The image shows a gradient accent, we will use a key color here */
+  --color-accent: #6c5ce7; /* A vibrant purple-blue from the image's aesthetic */
+  --color-accent-secondary: #52a8ff; /* A clean blue for balance */
 
+  /* The button styles in the image are more like frosted glass */
+  --color-button-bg: rgba(255, 255, 255, 0.05); /* Transparent white */
+  --color-button-border: rgba(255, 255, 255, 0.1);
+  --color-button-bg-hover: rgba(255, 255, 255, 0.1);
+
+  /* The status circles use vibrant, distinct colors */
   --color-status-online: #22c55e;
   --color-status-offline: #ef4444;
   --color-status-idle: #52525b;
 
-  --color-accent: #8b5cf6;
-  --color-accent-hover: #7c3aed;
-  --color-accent-light: #a78bfa;
+  /* Button/element colors */
+  --color-free-bg: #2a2a2d;
+  --color-free-border: #2a2a2d;
+  --color-premium-bg: var(--color-accent);
+  --color-premium-border: var(--color-accent);
+
+  /* New variables for the frosted glass look */
+  --glass-effect: saturate(180%) blur(20px);
+  --glass-bg: rgba(255, 255, 255, 0.08);
 
   --popup-width: 260px;
   --popup-height: 300px;
-  --popup-radius: 16px;
+  --popup-radius: 20px; /* Increased radius for a softer look */
 
   --font-family: 'Inter', Arial, sans-serif;
   --font-size-h1: 1.2em;
   --font-size-plan: 0.9em;
 
-  --button-bg: #18181b;
-  --button-border: #26262a;
-  --button-bg-hover: #26262a;
-
-  --dropdown-container-bg: #2a2a2d;
-  --dropdown-container-border: #18181b;
-  --dropdown-container-hover: #18181b;
-
   --switch-width: 28px;
   --switch-height: 1em;
   --switch-knob: 12px;
   --switch-offset: 2px;
-  --color-switch-off: #2a2a2d;     
-  --color-switch-knob: #8b5cf6;
-  --color-switch-on: #8b5cf6;
-  --color-switch-knob-active: #18181b;
+  --color-switch-off: #2a2a2d;
+  --color-switch-knob: #f5f5f5;
+  --color-switch-on: var(--color-accent);
+  --color-switch-knob-active: var(--color-popup);
 
   --slider-width: 70%;
   --slider-height: 6px;
-  --slider-bg: #26262a;               
+  --slider-bg: #2a2a2d;
   --slider-border-radius: 999px;
-  --slider-fill-color: #8b5cf6;
+  --slider-fill-color: var(--color-accent);
   --slider-transition: 0.2s;
   --slider-value-color: #f5f5f5;
   --slider-value-gap: 12px;
@@ -199,6 +202,7 @@
   z-index: 999999;
   color: var(--color-text);
   box-sizing: border-box;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); /* Deeper, more dramatic shadow */
 }
 
 .popup.active {
@@ -335,9 +339,9 @@
 
 #selected-mode {
   padding: 4px 8px;
-  border: 1px solid var(--button-border);
+  border: 1px solid var(--color-button-border);
   border-radius: 8px;
-  background-color: var(--color-free-bg);
+  background-color: var(--color-button-bg);
   color: var(--color-text);
   cursor: pointer;
 }
@@ -358,12 +362,14 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: var(--dropdown-container-bg);
-  border: 1px solid var(--dropdown-container-border);
+  background-color: var(--color-button-bg);
+  border: 1px solid var(--color-button-border);
   border-radius: 6px;
   flex-direction: column;
   z-index: 1000;
   cursor: pointer;
+  -webkit-backdrop-filter: var(--glass-effect);
+  backdrop-filter: var(--glass-effect);
 }
 
 .dropdown-container span {
@@ -374,20 +380,20 @@
 }
 
 .dropdown-container span:hover {
-  background-color: var(--dropdown-container-hover);
+  background-color: var(--color-button-bg-hover);
 }
 
 .popup #getAnswerButton {
   display: block;
   width: 100%;
-  background-color: var(--button-bg);
+  background-color: var(--color-button-bg);
   padding: 4px 65px;
   border-radius: 8px;
-  border: 1px solid var(--button-border);
+  border: 1px solid var(--color-button-border);
 }
 
 .popup #getAnswerButton:hover {
-  background-color: var(--button-bg-hover);  
+  background-color: var(--color-button-bg-hover);  
 }
 
 .popup #getAnswerButton span {
@@ -498,7 +504,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-  `,
+      `,
     },
 
     createPopup() {
