@@ -306,6 +306,7 @@
   display: none;
   margin-top: 4px;
   padding-left: 24px;
+  pointer-events: none;
 }
 
 .popup .subSettings.active {
@@ -324,13 +325,6 @@
   padding: 10px 0;
 }
 
-#solve-mode .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center; 
-  position: relative;  
-}
-
 #selected-mode {
   padding: 4px 8px;
   border: 1px solid var(--button-border);
@@ -340,8 +334,15 @@
   cursor: pointer;
 }
 
-#solve-mode .container:hover .dropdown-container {
-  display: block;
+.dropdown-wrapper:hover .dropdown-container {
+  display: flex; /* or block */
+}
+
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* aligns dropdown to the button's right */
 }
 
 .dropdown-container {
