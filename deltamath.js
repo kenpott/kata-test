@@ -125,41 +125,36 @@
   `,
       termCSS: `
       .popup {
-  --color-bg: #101010; /* Very dark background, almost black */
-  --color-popup: #202022; /* Slightly elevated background for the popup */
-  --color-border: rgba(255, 255, 255, 0.05); /* Very subtle white border */
-  --color-text: #f5f5f5; /* Light text for high contrast */
-  --color-text-secondary: #999999; /* Muted gray for secondary text */
-  --color-text-tertiary: #666666; /* Darker gray for less important text */
-  --color-text-disabled: #333333; /* Very dark for disabled elements */
+  --color-bg: #101010; 
+  --color-popup: #202022;
+  --color-border: rgba(255, 255, 255, 0.05); 
+  --color-text: #f5f5f5; 
+  --color-text-secondary: #999999; 
+  --color-text-tertiary: #666666; 
+  --color-text-disabled: #333333; 
 
-  /* The image shows a gradient accent, we will use a key color here */
-  --color-accent: #6c5ce7; /* A vibrant purple-blue from the image's aesthetic */
-  --color-accent-secondary: #52a8ff; /* A clean blue for balance */
+  --color-accent: #6c5ce7; 
+  --color-accent-secondary: #52a8ff; 
 
-  /* The button styles in the image are more like frosted glass */
-  --color-button-bg: rgba(255, 255, 255, 0.05); /* Transparent white */
+  --color-button-bg: rgba(255, 255, 255, 0.05); 
   --color-button-border: rgba(255, 255, 255, 0.1);
   --color-button-bg-hover: rgba(255, 255, 255, 0.1);
 
-  /* The status circles use vibrant, distinct colors */
   --color-status-online: #22c55e;
   --color-status-offline: #ef4444;
   --color-status-idle: #52525b;
 
-  /* Button/element colors */
   --color-free-bg: #2a2a2d;
   --color-free-border: #2a2a2d;
   --color-premium-bg: var(--color-accent);
   --color-premium-border: var(--color-accent);
 
-  /* New variables for the frosted glass look */
   --glass-effect: saturate(180%) blur(20px);
   --glass-bg: rgba(255, 255, 255, 0.08);
 
   --popup-width: 260px;
   --popup-height: 300px;
-  --popup-radius: 20px; /* Increased radius for a softer look */
+  --popup-radius: 20px; 
 
   --font-family: 'Inter', Arial, sans-serif;
   --font-size-h1: 1.2em;
@@ -170,7 +165,7 @@
   --switch-knob: 12px;
   --switch-offset: 2px;
   --color-switch-off: #2a2a2d;
-  --color-switch-knob: #f5f5f5;
+  --color-switch-knob: #6c5ce7;
   --color-switch-on: var(--color-accent);
   --color-switch-knob-active: var(--color-popup);
 
@@ -202,7 +197,7 @@
   z-index: 999999;
   color: var(--color-text);
   box-sizing: border-box;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); /* Deeper, more dramatic shadow */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 .popup.active {
@@ -370,6 +365,7 @@
   cursor: pointer;
   -webkit-backdrop-filter: var(--glass-effect);
   backdrop-filter: var(--glass-effect);
+  margin-top: 4px;
 }
 
 .dropdown-container span {
@@ -926,11 +922,7 @@
     if (!inputData) {
       console.warn(`No data available for ${mode} mode`);
       term.ui.notifications.show(
-        `No ${mode === "json" ? "question" : "screenshot"} data available`,
-        {
-          type: "error",
-        }
-      );
+        `No ${mode === "json" ? "question" : "screenshot"} data available`);
       return;
     }
 
