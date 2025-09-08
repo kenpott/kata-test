@@ -71,8 +71,8 @@
             <span>Mode</span>
             <button id="selected-mode">JSON</button>
               <div class="dropdown-container">
-                <a>JSON</a>
-                <a>Screenshot</a>
+                <span>JSON</span>
+                <span>Screenshot</span>
               </div>
             </div>
         </div>
@@ -154,7 +154,8 @@
   --button-border: #26262a;
   --button-border-hover: #8b5cf6;
 
-  --dropdown-container-bg: #18181b;
+  --dropdown-container-bg: #2a2a2d;
+  --dropdown-container-border: #18181b;
 
   --switch-width: 28px;
   --switch-height: 1em;
@@ -323,8 +324,8 @@
 #solve-mode .container {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* use align-items, not align-content */
-  position: relative;  /* for absolute positioning of dropdown */
+  align-items: center; 
+  position: relative;  
 }
 
 #selected-mode {
@@ -347,31 +348,30 @@
 .dropdown-container {
   display: none;
   position: absolute;
-  top: 100%; /* below the button */
-  left: 0;
-  background-color: var(--dropdown-bg);
-  border: 1px solid var(--button-border);
+  top: 100%;
+  right: 0;
+  background-color: var(--dropdown-container-bg);
+  border: 1px solid var(--dropdown-container-border);
   border-radius: 6px;
   flex-direction: column;
-  min-width: 100%;
   z-index: 1000;
 }
 
-.dropdown-container a {
+.dropdown-container span {
   display: block;
   padding: 6px 10px;
   color: var(--color-text);
   text-decoration: none;
 }
 
-.dropdown-container a:hover {
+.dropdown-container span:hover {
   background-color: var(--dropdown-bg);
 }
 
 .popup #getAnswerButton {
   display: block;
   width: 100%;
-  background-color: var(--button-bg);
+  background-color: var(--dropdown-bg);
   padding: 4px 65px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
@@ -489,7 +489,7 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
-`,
+  `,
     },
 
     createPopup() {
