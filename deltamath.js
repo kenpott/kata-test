@@ -68,7 +68,7 @@
         </div>
         <div class="subSettings active" id="solve-mode">
           <div class="container">
-            <span>Mode</span> 
+            <span>Mode</span>
             <div class="dropdown-wrapper">
               <button id="selected-mode">JSON</button>
               <div class="dropdown-container">
@@ -340,7 +340,7 @@
   cursor: pointer;
 }
 
-.dropdown-wrapper:hover .dropdown-container { {
+.dropdown-wrapper:hover .dropdown-container {
   display: flex;
 }
 
