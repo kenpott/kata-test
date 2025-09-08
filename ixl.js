@@ -8,7 +8,7 @@
       autoSolve: {
         enabled: false,
         subSettings: {
-          mode: "json",
+          mode: "fast",
         },
       },
       autoAnswer: {
@@ -947,7 +947,7 @@
 
       const payload = {
         data: isFastMode ? JSON.stringify(inputData) : String(inputData),
-        platformType: "deltamath",
+        platformType: "ixl",
         dataType: isFastMode ? "json" : "base64",
       };
 

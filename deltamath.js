@@ -8,7 +8,7 @@
       autoSolve: {
         enabled: false,
         subSettings: {
-          mode: "json",
+          mode: "fast",
         },
       },
       autoAnswer: {
