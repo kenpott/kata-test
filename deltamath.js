@@ -815,17 +815,7 @@
         return;
       }
       console.log("Auto-solve enabled");
-
-      if (term.data.state.currentAnswer) {
-        term.ui.notifications.show(term.data.state.currentAnswer, {
-          temporary: false,
-        });
-        return;
-      }
-
-      if (term.data.state.questionData) {
-        await term.solve();
-      }
+      await term.solve();
     },
 
     autoAnswer(enabled) {
@@ -846,7 +836,7 @@
           term.data.setQuestionData(questionData);
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
-          ); // save for when question loads
+          ); 
           term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
           await term.solve();
