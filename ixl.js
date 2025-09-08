@@ -356,6 +356,7 @@
         background-color: var(--color-button-bg);
         color: var(--color-text);
         cursor: pointer;
+        font-size: smaller;
       }
 
       .dropdown-wrapper:hover .dropdown-container {
