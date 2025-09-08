@@ -68,11 +68,13 @@
         </div>
         <div class="subSettings active" id="solve-mode">
           <div class="container">
-            <span>Mode</span>
-            <button id="selected-mode">JSON</button>
-            <div class="dropdown-container">
-              <span>JSON</span>
-              <span>Screenshot</span>
+            <span>Mode</span> 
+            <div class="dropdown-wrapper">
+              <button id="selected-mode">JSON</button>
+              <div class="dropdown-container">
+                <span>JSON</span>
+                <span>Screenshot</span>
+              </div>
             </div>
           </div>
         </div>
@@ -338,8 +340,14 @@
   cursor: pointer;
 }
 
-#solve-mode .container:hover .dropdown-container {
-  display: block;
+.dropdown-wrapper:hover .dropdown-container { {
+  display: flex;
+}
+
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .dropdown-container {
