@@ -636,7 +636,10 @@
       modeOptions.forEach((option) => {
         option.addEventListener("click", () => {
           modeButton.textContent = option.textContent;
-          term.data.updateSetting("autoSolve.subSettings.mode", option.textContent);
+          term.data.updateSetting(
+            "autoSolve.subSettings.mode",
+            option.textContent.toLowerCase()
+          );
         });
       });
 
@@ -656,7 +659,7 @@
           );
           term.data.setScreenshotData(screenshotData);
           console.log("Solving with screenshot!");
-          const answer = await term.solve(screenshotData);
+          const answer = await term.solve();
 
           term.ui.notifications.show(answer, {
             temporary: false,
@@ -821,7 +824,7 @@
       }
 
       if (term.data.state.questionData) {
-        await term.solve(term.data.state.questionData);
+        await term.solve();
       }
     },
 
@@ -846,7 +849,7 @@
           ); // save for when question loads
           term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
-          await term.solve(questionData);
+          await term.solve();
         } catch (error) {
           console.warn("Failed to parse Problem-Data-XHR response:", error);
         }
@@ -918,31 +921,38 @@
     },
   };
 
-  term.solve = async function (data) {
+  term.solve = async function () {
     if (term.data.state.isSolving) {
       console.log("Solve request blocked: already solving");
       return;
     }
-    console.log(data);
+
+    const mode = term.data.settings.autoSolve.subSettings.mode;
+    const isJsonMode = mode === "json";
+    const inputData = isJsonMode
+      ? term.data.state.questionData
+      : term.data.state.screenshotData;
+
+    if (!inputData) {
+      console.warn(`No data available for ${mode} mode`);
+      term.ui.notifications.show(
+        `No ${mode === "json" ? "question" : "screenshot"} data available`,
+        {
+          type: "error",
+        }
+      );
+      return;
+    }
 
     try {
       term.data.setSolving(true);
       term.ui.notifications.show("Solving...");
 
-      let payload;
-      if (typeof data === "object" && data !== null) {
-        payload = {
-          data: JSON.stringify(data),
-          platformType: "deltamath",
-          dataType: "json",
-        };
-      } else {
-        payload = {
-          data: String(data),
-          platformType: "deltamath",
-          dataType: "base64",
-        };
-      }
+      const payload = {
+        data: isJsonMode ? JSON.stringify(inputData) : String(inputData),
+        platformType: "deltamath",
+        dataType: isJsonMode ? "json" : "base64",
+      };
 
       const result = await term.fetch(
         "https://term-worker.buyterm-vip.workers.dev/solve",
