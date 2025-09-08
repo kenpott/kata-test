@@ -156,7 +156,7 @@
 
   --button-bg: #18181b;
   --button-border: #26262a;
-  --button-border-hover: #8b5cf6;
+  --button-bg-hover: #26262a;
 
   --dropdown-container-bg: #2a2a2d;
   --dropdown-container-border: #18181b;
@@ -343,7 +343,7 @@
 }
 
 .dropdown-wrapper:hover .dropdown-container {
-  display: flex; /* or block */
+  display: flex; 
 }
 
 .dropdown-wrapper {
@@ -387,7 +387,7 @@
 }
 
 .popup #getAnswerButton:hover {
-  border-color: var(--color-accent-hover);  
+  background-color: var(--button-bg-hover);  
 }
 
 .popup #getAnswerButton span {
