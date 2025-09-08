@@ -338,7 +338,7 @@
   border: 1px solid var(--button-border-hover);
 }
 
-.selected-mode:hover .dropdown-container {
+.selected-mode:hover + .dropdown-container {
   display: block;
 }
 
