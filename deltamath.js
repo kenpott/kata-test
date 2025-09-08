@@ -954,6 +954,8 @@
         dataType: isJsonMode ? "json" : "base64",
       };
 
+      console.log("payload: ", payload);
+
       const result = await term.fetch(
         "https://term-worker.buyterm-vip.workers.dev/solve",
         {
