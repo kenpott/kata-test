@@ -7,23 +7,29 @@
     settings: {
       autoSolve: {
         enabled: false,
+        subSettings: {
+          mode: "json",
+        },
       },
       autoAnswer: {
         enabled: false,
         subSettings: {
           delay: 5.0,
-          smartScore: 80,
         },
       },
     },
     state: {
       isSolving: false,
       questionData: null,
+      screenshotData: null,
       currentAnswer: null,
     },
 
     setQuestionData(data) {
       this.state.questionData = data;
+    },
+    setScreenshotData(data) {
+      this.state.screenshotData = data;
     },
     setCurrentAnswer(answer) {
       this.state.currentAnswer = answer;
@@ -68,8 +74,8 @@
             <div class="dropdown-wrapper">
               <button id="selected-mode">JSON</button>
               <div class="dropdown-container">
-                <span>JSON</span>
-                <span>Screenshot</span>
+                <span>fast</span>
+                <span>accurate</span>
               </div>
             </div>
           </div>
@@ -515,11 +521,11 @@
 
     createPopup() {
       const container = document.createElement("div");
-      container.innerHTML = this.templates.popupHTML;
+      container.innerHTML = this.templates.termHTML;
       document.body.appendChild(container);
 
       const styleEl = document.createElement("style");
-      styleEl.textContent = this.templates.popupCSS;
+      styleEl.textContent = this.templates.termCSS;
       document.head.appendChild(styleEl);
     },
 
@@ -532,7 +538,11 @@
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
+
+      // Desktop
       element.onmousedown = dragMouseDown;
+      // Mobile
+      element.ontouchstart = dragTouchStart;
 
       function dragMouseDown(e) {
         if (
@@ -540,9 +550,9 @@
           e.target.tagName === "TEXTAREA" ||
           e.target.tagName === "BUTTON" ||
           e.target.isContentEditable
-        ) {
+        )
           return;
-        }
+
         e.preventDefault();
         pos3 = e.clientX;
         pos4 = e.clientY;
@@ -550,8 +560,24 @@
         document.onmousemove = elementDrag;
       }
 
+      function dragTouchStart(e) {
+        if (
+          e.target.tagName === "INPUT" ||
+          e.target.tagName === "TEXTAREA" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.isContentEditable
+        )
+          return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        document.ontouchend = closeDragElement;
+        document.ontouchmove = elementDragTouch;
+      }
+
       function elementDrag(e) {
-        e = e || window.event;
         e.preventDefault();
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
@@ -561,9 +587,22 @@
         element.style.left = element.offsetLeft - pos1 + "px";
       }
 
+      function elementDragTouch(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        element.style.top = element.offsetTop - pos2 + "px";
+        element.style.left = element.offsetLeft - pos1 + "px";
+      }
+
       function closeDragElement() {
         document.onmouseup = null;
         document.onmousemove = null;
+        document.ontouchend = null;
+        document.ontouchmove = null;
       }
     },
 
@@ -575,10 +614,10 @@
         }
       });
 
-      // Auto solve toggle
-      document
-        .querySelector("#auto-solve")
-        .addEventListener("change", (event) => {
+      // Auto answer toggle
+      const autoAnswerToggle = document.querySelector("#autoAnswerCheckbox");
+      if (autoAnswerToggle) {
+        autoAnswerToggle.addEventListener("change", (event) => {
           const enabled = event.target.checked;
           const autoAnswerCheckbox = document.querySelector(
             "#autoAnswerCheckbox"
@@ -590,39 +629,49 @@
             autoAnswerCheckbox.checked = false;
           }
           term.data.updateSetting("autoSolve.enabled", enabled);
-          term.handlers.autoSolve(enabled);
+          term.handlers.autoAnswer(enabled);
         });
+      }
 
-      document
-        .querySelector("#auto-answer")
-        .addEventListener("change", (event) => {
+      // Auto solve toggle
+      const autoSolveToggle = document.querySelector("#autoSolveCheckbox");
+      if (autoSolveToggle) {
+        autoSolveToggle.addEventListener("change", (event) => {
           const autoSolveCheckbox =
             document.querySelector("#autoSolveCheckbox");
           const enabled = event.target.checked;
           autoSolveCheckbox.checked = enabled;
           term.data.updateSetting("autoAnswer.enabled", enabled);
           term.data.updateSetting("autoSolve.enabled", enabled);
-          term.handlers.autoAnswer(enabled);
+          term.handlers.autoSolve(enabled);
         });
+      }
+      // Solve Mode
+      const modeButton = document.getElementById("selected-mode");
+      const dropdownContainer = document.querySelector(".dropdown-container");
+      const modeOptions = dropdownContainer.querySelectorAll("span");
 
+      modeOptions.forEach((option) => {
+        option.addEventListener("click", () => {
+          modeButton.textContent = option.textContent;
+          term.data.updateSetting(
+            "autoSolve.subSettings.mode",
+            option.textContent.toLowerCase()
+          );
+        });
+      });
+
+      // Get answer button
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {
         getAnswerButton.addEventListener("click", async () => {
-          if (term.data.state.currentAnswer) {
-            term.ui.notifications.show(term.data.state.currentAnswer, {
-              temporary: false,
-            });
-            return;
-          }
-          /**
           const questionSelector = document.querySelector("#mathBlock");
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
           term.data.setScreenshotData(screenshotData);
-          console.log("Solving with screenshot!");
-          const answer = await term.solve(screenshotData);
-          */
+          const answer = await term.solve();
+
           term.ui.notifications.show(answer, {
             temporary: false,
           });
@@ -630,28 +679,18 @@
       }
 
       // Delay input
-      document.querySelector("#delay").addEventListener("input", (event) => {
-        const level = event.target.value;
-        const delayText = document.querySelector("#delayValue");
-        term.data.updateSetting(
-          "autoAnswer.subSettings.delay",
-          parseFloat(level)
-        );
-        delayText.textContent = level;
-      });
-
-      // Smart score input
-      document
-        .querySelector("#smartScore")
-        .addEventListener("input", (event) => {
+      const delayInput = document.querySelector("#delay");
+      if (delayInput) {
+        delayInput.addEventListener("input", (event) => {
           const level = event.target.value;
-          const scoreText = document.querySelector("#smartScoreValue");
+          const delayText = document.querySelector("#delayValue");
           term.data.updateSetting(
-            "autoAnswer.subSettings.smartScore",
-            parseInt(level)
+            "autoAnswer.subSettings.delay",
+            parseFloat(level)
           );
-          scoreText.textContent = level;
+          if (delayText) delayText.textContent = level;
         });
+      }
     },
 
     notifications: {
@@ -813,8 +852,11 @@
         term.data.setCurrentAnswer(null);
 
         try {
+          const questionSelector = document.querySelector("practice-views-root");
           const questionData = JSON.parse(event.data.response);
           term.data.setQuestionData(questionData);
+          const screenshotData = await term.utils.captureScreenshot(questionSelector);
+          term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
           await term.solve(questionData);
         } catch (error) {
@@ -877,31 +919,38 @@
     },
   };
 
-  term.solve = async function (data) {
+  term.solve = async function () {
     if (term.data.state.isSolving) {
-      console.log("Solve request blocked: already solving");
+      term.ui.notifications.show("Solving in queue.");
       return;
     }
-    console.log(data);
+
+    const mode = term.data.settings.autoSolve.subSettings.mode;
+
+    const isJsonMode = mode === "fast";
+    const inputData = isJsonMode
+      ? term.data.state.questionData
+      : term.data.state.screenshotData;
+
+    if (!inputData) {
+      console.warn(`No data available for ${mode} mode`);
+      term.ui.notifications.show(
+        `No ${mode === "fast" ? "question" : "accurate"} data available`
+      );
+      return;
+    }
 
     try {
       term.data.setSolving(true);
-      term.ui.notifications.show("Solving...");
+      term.ui.notifications.show(`[Mode: ${mode}] Solving...`);
 
-      let payload;
-      if (typeof data === "object" && data !== null) {
-        payload = {
-          data: JSON.stringify(data),
-          platformType: "ixl",
-          dataType: "json",
-        };
-      } else {
-        payload = {
-          data: String(data),
-          platformType: "ixl",
-          dataType: "base64",
-        };
-      }
+      const payload = {
+        data: isJsonMode ? JSON.stringify(inputData) : String(inputData),
+        platformType: "deltamath",
+        dataType: isJsonMode ? "json" : "base64",
+      };
+
+      console.log("payload: ", payload);
 
       const result = await term.fetch(
         "https://term-worker.buyterm-vip.workers.dev/solve",

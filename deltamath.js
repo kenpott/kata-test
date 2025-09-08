@@ -74,8 +74,8 @@
             <div class="dropdown-wrapper">
               <button id="selected-mode">JSON</button>
               <div class="dropdown-container">
-                <span>JSON</span>
-                <span>Screenshot</span>
+                <span>fast</span>
+                <span>accurate</span>
               </div>
             </div>
           </div>
@@ -629,7 +629,7 @@
           term.handlers.autoSolve(enabled);
         });
       }
-
+      // Solve Mode
       const modeButton = document.getElementById("selected-mode");
       const dropdownContainer = document.querySelector(".dropdown-container");
       const modeOptions = dropdownContainer.querySelectorAll("span");
@@ -654,7 +654,7 @@
           );
           term.data.setScreenshotData(screenshotData);
           const answer = await term.solve();
-          
+
           term.ui.notifications.show(answer, {
             temporary: false,
           });
@@ -809,7 +809,17 @@
         return;
       }
       console.log("Auto-solve enabled");
-      await term.solve();
+
+      if (term.data.state.currentAnswer) {
+        term.ui.notifications.show(term.data.state.currentAnswer, {
+          temporary: false,
+        });
+        return;
+      }
+
+      if (term.data.state.questionData) {
+        await term.solve(term.data.state.questionData);
+      }
     },
 
     autoAnswer(enabled) {
@@ -825,12 +835,10 @@
         term.data.setCurrentAnswer(null);
 
         try {
-          const questionSelector = document.querySelector("#mathBlock"); // wait for question to load
+          const questionSelector = document.querySelector("#mathBlock");
           const questionData = JSON.parse(event.data.response);
           term.data.setQuestionData(questionData);
-          const screenshotData = await term.utils.captureScreenshot(
-            questionSelector
-          ); 
+          const screenshotData = await term.utils.captureScreenshot(questionSelector);
           term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
           await term.solve();
@@ -913,7 +921,7 @@
 
     const mode = term.data.settings.autoSolve.subSettings.mode;
 
-    const isJsonMode = mode === "json";
+    const isJsonMode = mode === "fast";
     const inputData = isJsonMode
       ? term.data.state.questionData
       : term.data.state.screenshotData;
@@ -921,7 +929,8 @@
     if (!inputData) {
       console.warn(`No data available for ${mode} mode`);
       term.ui.notifications.show(
-        `No ${mode === "json" ? "question" : "screenshot"} data available`);
+        `No ${mode === "fast" ? "question" : "accurate"} data available`
+      );
       return;
     }
 
