@@ -324,7 +324,13 @@
   padding: 10px 0;
 }
 
-/* Remove pointer-events so button works */
+#solve-mode .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
 #selected-mode {
   padding: 4px 8px;
   border: 1px solid var(--button-border);
@@ -366,13 +372,13 @@
 }
 
 .dropdown-container span:hover {
-  background-color: var(--dropdown-bg);
+  background-color: var(--dropdown-container-hover);
 }
 
 .popup #getAnswerButton {
   display: block;
   width: 100%;
-  background-color: var(--dropdown-bg);
+  background-color: var(--button-bg);
   padding: 4px 65px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
