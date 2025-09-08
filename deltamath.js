@@ -7,6 +7,9 @@
     settings: {
       autoSolve: {
         enabled: false,
+        subSettings: {
+          mode: "JSON",
+        },
       },
       autoAnswer: {
         enabled: false,
@@ -22,7 +25,6 @@
       currentAnswer: null,
     },
 
-    // Data manipulation methods
     setQuestionData(data) {
       this.state.questionData = data;
     },
@@ -627,22 +629,16 @@
         });
       }
 
-      // Solve Mode Dropdown
-      const modeButton = document.querySelector(".mode-popup-button");
-      const modeRadios = document.querySelectorAll('input[name="mode"]');
+      const modeButton = document.getElementById("selected-mode");
+      const dropdownContainer = document.querySelector(".dropdown-container");
+      const modeOptions = dropdownContainer.querySelectorAll("span");
 
-      function updateMode() {
-        const selected = document.querySelector('input[name="mode"]:checked');
-        if (selected) {
-          modeButton.textContent =
-            selected.id === "default" ? "JSON" : "Screenshot";
-        }
-      }
-
-      modeRadios.forEach((radio) => {
-        radio.addEventListener("change", updateMode);
+      modeOptions.forEach((option) => {
+        option.addEventListener("click", () => {
+          modeButton.textContent = option.textContent;
+          term.data.updateSetting("autoSolve.subSettings.mode", option.textContent);
+        });
       });
-      updateMode();
 
       // Get answer button
       const getAnswerButton = document.querySelector("#getAnswerButton");
