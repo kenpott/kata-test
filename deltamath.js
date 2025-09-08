@@ -355,7 +355,7 @@
 .dropdown-container {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);        
   right: 0;
   background-color: var(--color-button-bg);
   border: 1px solid var(--color-button-border);
@@ -365,7 +365,6 @@
   cursor: pointer;
   -webkit-backdrop-filter: var(--glass-effect);
   backdrop-filter: var(--glass-effect);
-  margin-top: 4px;
 }
 
 .dropdown-container span {
