@@ -70,7 +70,7 @@
           <div class="container">
             <span>Mode</span>
             <div class="mode-popup">
-              <a id="selected-mode">Default</a>
+              <button id="selected-mode">Default</button>
             </div>
           </div>
         </div>
@@ -316,9 +316,20 @@
   padding: 10px 0;
 }
 
-.popup #solveModeDropdown .container {
+#solve-mode .container {
     display: flex;
     justify-content: space-between;
+}
+
+#selected-mode {
+    padding: 4px 16px;
+    border: 1px solid var(--button-border);
+    border-radius: 8px;
+}
+
+#selected-mode:hover {
+  border: 1px solid var(--button-border-hover);
+ 
 }
 
 .popup #getAnswerButton {
@@ -330,7 +341,7 @@
 }
 
 .popup #getAnswerButton:hover {
-  border-color: var(--button-border-hover);  
+  border-color: var(--color-accent-hover);  
 }
 
 .popup #getAnswerButton span {
