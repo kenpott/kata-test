@@ -70,7 +70,11 @@
           <div class="container">
             <span>Mode</span>
             <div class="mode-popup">
-              <button id="selected-mode">Default</button>
+              <button id="selected-mode">JSON</button>
+              <div class="dropdown-container">
+                <a>JSON</a>
+                <a>Screenshot</a>
+              </div>
             </div>
           </div>
         </div>
@@ -127,8 +131,8 @@
   --color-text-tertiary: #6b7280;
   --color-text-disabled: #3f3f46;
 
-  --color-free-bg: #2a2a2d;     /* same as toggle background */
-  --color-free-border: #2a2a2d; /* matches darker border tone */
+  --color-free-bg: #2a2a2d;   
+  --color-free-border: #2a2a2d; 
   --color-premium-bg: #8b5cf6;
   --color-premium-border: #8b5cf6;
 
@@ -148,9 +152,11 @@
   --font-size-h1: 1.2em;
   --font-size-plan: 0.9em;
 
-  --button-bg: ##18181b;
+  --button-bg: #18181b;
   --button-border: #26262a;
   --button-border-hover: #8b5cf6;
+
+  --dropdown-container-bg: #18181b;
 
   --switch-width: 28px;
   --switch-height: 1em;
@@ -323,19 +329,30 @@
 }
 
 #selected-mode {
-    padding: 4px 8px;
-    border: 1px solid var(--button-border);
-    border-radius: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--button-border);
+  border-radius: 8px;
 }
 
 #selected-mode:hover {
   border: 1px solid var(--button-border-hover);
 }
 
+.selected-mode:hover .dropdown-container {
+  display: block;
+}
+
+.dropdown-container {
+  display: none;
+  position: absolute;
+  background-color: var(--dropdown-container-bg);
+}
+
 .popup #getAnswerButton {
   display: block;
+  width: 100%;
   background-color: var(--button-bg);
-  padding: 2px 65px;
+  padding: 4px 65px;
   border-radius: 8px;
   border: 1px solid var(--button-border);
 }
