@@ -72,7 +72,7 @@
           <div class="container">
             <span>Mode</span>
             <div class="dropdown-wrapper">
-              <button id="selected-mode">JSON</button>
+              <button id="selected-mode">fast</button>
               <div class="dropdown-container">
                 <span>fast</span>
                 <span>accurate</span>
