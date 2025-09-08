@@ -321,6 +321,11 @@
     justify-content: space-between;
 }
 
+#solve-mod .container .span {
+  display: flex;
+  align-items: center;
+}
+
 #selected-mode {
     padding: 4px 16px;
     border: 1px solid var(--button-border);
@@ -329,7 +334,6 @@
 
 #selected-mode:hover {
   border: 1px solid var(--button-border-hover);
- 
 }
 
 .popup #getAnswerButton {
