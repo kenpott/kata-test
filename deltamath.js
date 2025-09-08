@@ -8,7 +8,7 @@
       autoSolve: {
         enabled: false,
         subSettings: {
-          mode: "JSON",
+          mode: "json",
         },
       },
       autoAnswer: {
@@ -928,6 +928,7 @@
     }
 
     const mode = term.data.settings.autoSolve.subSettings.mode;
+
     const isJsonMode = mode === "json";
     const inputData = isJsonMode
       ? term.data.state.questionData
