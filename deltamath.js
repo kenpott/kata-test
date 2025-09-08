@@ -69,14 +69,12 @@
         <div class="subSettings active" id="solve-mode">
           <div class="container">
             <span>Mode</span>
-            <div class="mode-popup">
-              <button id="selected-mode">JSON</button>
+            <button id="selected-mode">JSON</button>
               <div class="dropdown-container">
                 <a>JSON</a>
                 <a>Screenshot</a>
               </div>
             </div>
-          </div>
         </div>
         <div class="subSettings active" id="get-answer">
           <div class="container">
