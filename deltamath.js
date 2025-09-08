@@ -306,7 +306,6 @@
   display: none;
   margin-top: 4px;
   padding-left: 24px;
-  pointer-events: none;
 }
 
 .popup .subSettings.active {
@@ -325,6 +324,7 @@
   padding: 10px 0;
 }
 
+/* Remove pointer-events so button works */
 #selected-mode {
   padding: 4px 8px;
   border: 1px solid var(--button-border);
@@ -342,7 +342,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* aligns dropdown to the button's right */
+  align-items: flex-end; 
 }
 
 .dropdown-container {
