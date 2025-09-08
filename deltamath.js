@@ -340,14 +340,8 @@
   cursor: pointer;
 }
 
-.dropdown-wrapper:hover .dropdown-container {
-  display: flex;
-}
-
-.dropdown-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
+#solve-mode .container:hover .dropdown-container {
+  display: block;
 }
 
 .dropdown-container {
