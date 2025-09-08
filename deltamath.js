@@ -70,11 +70,11 @@
           <div class="container">
             <span>Mode</span>
             <button id="selected-mode">JSON</button>
-              <div class="dropdown-container">
-                <span>JSON</span>
-                <span>Screenshot</span>
-              </div>
+            <div class="dropdown-container">
+              <span>JSON</span>
+              <span>Screenshot</span>
             </div>
+          </div>
         </div>
         <div class="subSettings active" id="get-answer">
           <div class="container">
@@ -337,7 +337,7 @@
   cursor: pointer;
 }
 
-#selected-mode:hover .dropdown-container {
+#solve-mode .container:hover .dropdown-container {
   display: block;
 }
 
