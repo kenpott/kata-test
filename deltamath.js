@@ -913,7 +913,7 @@
 
   term.solve = async function () {
     if (term.data.state.isSolving) {
-      console.log("Solve request blocked: already solving");
+      term.ui.notifications.show("Solving in queue.");
       return;
     }
 
