@@ -139,37 +139,36 @@
 
       popupCSS: `
       .popup {
-        --color-bg: #101010;
+        --color-bg: #101010; 
         --color-popup: #202022;
-        --color-border: rgba(255, 255, 255, 0.05);
-        --color-text: #f5f5f5;
-        --color-text-secondary: #999999;
-        --color-text-tertiary: #666666;
-        --color-text-disabled: #333333;
+        --color-border: rgba(255, 255, 255, 0.05); 
+        --color-text: #f5f5f5; 
+        --color-text-secondary: #999999; 
+        --color-text-tertiary: #666666; 
+        --color-text-disabled: #333333; 
 
-        --color-free-bg: #2a2a2d;
-        --color-free-border: #2a2a2d;
-        --color-premium-bg: #6c5ce7;
-        --color-premium-border: #6c5ce7;
+        --color-accent: #6c5ce7; 
+        --color-accent-secondary: #52a8ff; 
+
+        --color-button-bg: rgba(255, 255, 255, 0.05); 
+        --color-button-border: rgba(255, 255, 255, 0.1);
+        --color-button-bg-hover: rgba(255, 255, 255, 0.1);
 
         --color-status-online: #22c55e;
         --color-status-offline: #ef4444;
         --color-status-idle: #52525b;
 
-        --color-accent: #6c5ce7;
-        --color-accent-hover: #7c3aed;
-        --color-accent-light: #c4b5fd;
-
-        --color-button-bg: rgba(255, 255, 255, 0.05);
-        --color-button-border: rgba(255, 255, 255, 0.1);
-        --color-button-border-hover: rgba(255, 255, 255, 0.1);
+        --color-free-bg: #2a2a2d;
+        --color-free-border: #2a2a2d;
+        --color-premium-bg: var(--color-accent);
+        --color-premium-border: var(--color-accent);
 
         --glass-effect: saturate(180%) blur(20px);
         --glass-bg: rgba(255, 255, 255, 0.08);
 
         --popup-width: 260px;
         --popup-height: 300px;
-        --popup-radius: 20px;
+        --popup-radius: 20px; 
 
         --font-family: 'Inter', Arial, sans-serif;
         --font-size-h1: 1.2em;
@@ -181,14 +180,14 @@
         --switch-offset: 2px;
         --color-switch-off: #2a2a2d;
         --color-switch-knob: #6c5ce7;
-        --color-switch-on: #6c5ce7;
-        --color-switch-knob-active: #202022;
+        --color-switch-on: var(--color-accent);
+        --color-switch-knob-active: var(--color-popup);
 
         --slider-width: 70%;
         --slider-height: 6px;
         --slider-bg: #2a2a2d;
         --slider-border-radius: 999px;
-        --slider-fill-color: #6c5ce7;
+        --slider-fill-color: var(--color-accent);
         --slider-transition: 0.2s;
         --slider-value-color: #f5f5f5;
         --slider-value-gap: 12px;
