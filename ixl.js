@@ -666,7 +666,7 @@
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {
         getAnswerButton.addEventListener("click", async () => {
-          const questionSelector = document.querySelector("practice-views-root");
+          const questionSelector = document.querySelector(".practice-views-root");
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
@@ -853,7 +853,7 @@
         term.data.setCurrentAnswer(null);
 
         try {
-          const questionSelector = document.querySelector("practice-views-root");
+          const questionSelector = document.querySelector(".practice-views-root");
           const questionData = JSON.parse(event.data.response);
           term.data.setQuestionData(questionData);
           const screenshotData = await term.utils.captureScreenshot(questionSelector);
@@ -928,8 +928,8 @@
 
     const mode = term.data.settings.autoSolve.subSettings.mode;
 
-    const isJsonMode = mode === "fast";
-    const inputData = isJsonMode
+    const isFastMode = mode === "fast";
+    const inputData = isFastMode
       ? term.data.state.questionData
       : term.data.state.screenshotData;
 
@@ -946,9 +946,9 @@
       term.ui.notifications.show(`[Mode: ${mode}] Solving...`);
 
       const payload = {
-        data: isJsonMode ? JSON.stringify(inputData) : String(inputData),
+        data: isFastMode ? JSON.stringify(inputData) : String(inputData),
         platformType: "deltamath",
-        dataType: isJsonMode ? "json" : "base64",
+        dataType: isFastMode ? "json" : "base64",
       };
 
       console.log("payload: ", payload);

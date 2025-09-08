@@ -922,8 +922,8 @@
 
     const mode = term.data.settings.autoSolve.subSettings.mode;
 
-    const isJsonMode = mode === "fast";
-    const inputData = isJsonMode
+    const isFastMode = mode === "fast";
+    const inputData = isFastMode
       ? term.data.state.questionData
       : term.data.state.screenshotData;
 
@@ -940,9 +940,9 @@
       term.ui.notifications.show(`[Mode: ${mode}] Solving...`);
 
       const payload = {
-        data: isJsonMode ? JSON.stringify(inputData) : String(inputData),
+        data: isFastMode ? JSON.stringify(inputData) : String(inputData),
         platformType: "deltamath",
-        dataType: isJsonMode ? "json" : "base64",
+        dataType: isFastMode ? "json" : "base64",
       };
 
       console.log("payload: ", payload);
