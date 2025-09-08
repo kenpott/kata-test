@@ -323,27 +323,49 @@
 #solve-mode .container {
   display: flex;
   justify-content: space-between;
-  align-content: center;
+  align-items: center; /* use align-items, not align-content */
+  position: relative;  /* for absolute positioning of dropdown */
 }
 
 #selected-mode {
   padding: 4px 8px;
   border: 1px solid var(--button-border);
   border-radius: 8px;
+  background-color: var(--color-free-bg);
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 #selected-mode:hover {
   border: 1px solid var(--button-border-hover);
 }
 
-.selected-mode:hover + .dropdown-container {
+#selected-mode:hover ~ .dropdown-container {
   display: block;
 }
 
 .dropdown-container {
   display: none;
   position: absolute;
-  background-color: var(--dropdown-container-bg);
+  top: 100%; /* below the button */
+  left: 0;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 6px;
+  flex-direction: column;
+  min-width: 100%;
+  z-index: 1000;
+}
+
+.dropdown-container a {
+  display: block;
+  padding: 6px 10px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.dropdown-container a:hover {
+  background-color: var(--dropdown-bg);
 }
 
 .popup #getAnswerButton {
