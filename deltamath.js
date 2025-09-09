@@ -72,12 +72,30 @@
           <div class="container">
             <span>Mode</span>
             <div class="dropdown-wrapper">
-              <button id="selected-mode">fast</button>
-              <div class="dropdown-container">
+              <button class="dropdown-button" id="selected-solve-mode">fast</button>
+              <div class="dropdown-container" id="solve-mode-dropdown">
                 <span>fast</span>
                 <span>accurate</span>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="subSettings active" id="ai-model">
+          <div class="container">
+            <span>AI Model</span>
+            <div class="dropdown-wrapper">
+              <button class="dropdown-button" id="selected-ai-model">gemini-2.5 flash</button>
+              <div class="dropdown-container" id="ai-model-dropdown">
+                <span>term</span>
+                <span>gemini-2.5 flash</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="subSettings active" id="api-key">
+          <div class="container">
+            <span>Api Key</span>
+            <input type="password" id="api-key-input"/>
           </div>
         </div>
         <div class="subSettings active" id="get-answer">
@@ -129,6 +147,7 @@
   --color-popup: #202022;
   --color-border: rgba(255, 255, 255, 0.05); 
   --color-text: #f5f5f5; 
+  --color-input: #5f5f5;
   --color-text-secondary: #999999; 
   --color-text-tertiary: #666666; 
   --color-text-disabled: #333333; 
@@ -266,10 +285,17 @@
 
 .popup .content {
   flex: 1;
-  height: 217px;
   display: flex;
+  max-height: 217px;
   flex-direction: column;
   padding: 0 16px;
+  overflow: scroll;
+  scrollbar-width: none;
+  margin-bottom: 10px;
+}
+
+.popup .content::-webkit-scrollbar {
+  display: none;
 }
 
 .popup .content .list {
@@ -332,7 +358,7 @@
   position: relative;
 }
 
-#selected-mode {
+#selected {
   padding: 4px 8px;
   border: 1px solid var(--color-button-border);
   border-radius: 8px;
@@ -364,7 +390,6 @@
   flex-direction: column;
   z-index: 1000;
   cursor: pointer;
-  -webkit-backdrop-filter: var(--glass-effect);
   backdrop-filter: var(--glass-effect);
 }
 
@@ -500,6 +525,10 @@
 .popup .range .rangeInput:focus {
   outline: none;
 }
+
+:focus {
+  outline: none;
+}
       `,
     },
 
@@ -517,25 +546,20 @@
       document.querySelector(".popup").classList.toggle("active");
     },
 
-    makeDraggable(element) {
+    makeDraggable(element, dragHandle = null) {
       let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
 
-      // Desktop
-      element.onmousedown = dragMouseDown;
-      // Mobile
-      element.ontouchstart = dragTouchStart;
+      const handle = dragHandle || element.querySelector(".topbar") || element;
+
+      handle.onmousedown = dragMouseDown;
+      handle.ontouchstart = dragTouchStart;
 
       function dragMouseDown(e) {
-        if (
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA" ||
-          e.target.tagName === "BUTTON" ||
-          e.target.isContentEditable
-        )
-          return;
+        // Only prevent dragging on the status indicator
+        if (e.target.classList.contains("status")) return;
 
         e.preventDefault();
         pos3 = e.clientX;
@@ -545,13 +569,7 @@
       }
 
       function dragTouchStart(e) {
-        if (
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA" ||
-          e.target.tagName === "BUTTON" ||
-          e.target.isContentEditable
-        )
-          return;
+        if (e.target.classList.contains("status")) return;
 
         e.preventDefault();
         const touch = e.touches[0];
@@ -624,17 +642,32 @@
           term.handlers.autoSolve(enabled);
         });
       }
-      
-      // Solve Mode
-      const modeButton = document.getElementById("selected-mode");
-      const dropdownContainer = document.querySelector(".dropdown-container");
-      const modeOptions = dropdownContainer.querySelectorAll("span");
 
-      modeOptions.forEach((option) => {
+      // Solve Mode
+      const solveModeButton = document.querySelector("#selected-solve-mode");
+      const solveModeDropdown = document.querySelector("#solve-mode-dropdown");
+      const solveModeOptions = solveModeDropdown.querySelectorAll("span");
+
+      solveModeOptions.forEach((option) => {
         option.addEventListener("click", () => {
-          modeButton.textContent = option.textContent;
+          solveModeButton.textContent = option.textContent;
           term.data.updateSetting(
             "autoSolve.subSettings.mode",
+            option.textContent.toLowerCase()
+          );
+        });
+      });
+
+      // Ai Model
+      const aiModelButton = document.querySelector("#selected-ai-model");
+      const aiModelDropdown = document.querySelector("#ai-model-dropdown");
+      const aiModelOptions = aiModelDropdown.querySelectorAll("span");
+
+      aiModelOptions.forEach((option) => {
+        option.addEventListener("click", () => {
+          aiModelButton.textContent = option.textContent;
+          term.data.updateSetting(
+            "autoSolve.subSettings.model",
             option.textContent.toLowerCase()
           );
         });

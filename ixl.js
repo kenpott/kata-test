@@ -9,6 +9,8 @@
         enabled: false,
         subSettings: {
           mode: "fast",
+          model: "gemini-2.5 flash",
+          apikey: "",
         },
       },
       autoAnswer: {
@@ -72,12 +74,30 @@
           <div class="container">
             <span>Mode</span>
             <div class="dropdown-wrapper">
-              <button id="selected-mode">fast</button>
-              <div class="dropdown-container">
+              <button class="dropdown-button" id="selected-solve-mode">fast</button>
+              <div class="dropdown-container" id="solve-mode-dropdown">
                 <span>fast</span>
                 <span>accurate</span>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="subSettings active" id="ai-model">
+          <div class="container">
+            <span>AI Model</span>
+            <div class="dropdown-wrapper">
+              <button class="dropdown-button" id="selected-ai-model">gemini-2.5 flash</button>
+              <div class="dropdown-container" id="ai-model-dropdown">
+                <span>term</span>
+                <span>gemini-2.5 flash</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="subSettings active" id="api-key">
+          <div class="container">
+            <span>Api Key</span>
+            <input type="password" id="api-key-input"/>
           </div>
         </div>
         <div class="subSettings active" id="get-answer">
@@ -160,6 +180,9 @@
         --color-button-border: rgba(255, 255, 255, 0.1);
         --color-button-bg-hover: rgba(255, 255, 255, 0.1);
 
+        --color-input-bg: rgba(255, 255, 255, 0.05); 
+        --color-input-border: rgba(255, 255, 255, 0.1);
+
         --color-status-online: #22c55e;
         --color-status-offline: #ef4444;
         --color-status-idle: #52525b;
@@ -231,7 +254,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        pointer-events: none;
+        cursor: move;
       }
 
       .popup .topbar .left {
@@ -288,6 +311,13 @@
         max-height: 217px;
         flex-direction: column;
         padding: 0 16px;
+        overflow: scroll;
+        scrollbar-width: none;
+        margin-bottom: 10px;
+      }
+
+      .popup .content::-webkit-scrollbar {
+        display: none;
       }
 
       .popup .content .list {
@@ -349,7 +379,7 @@
         position: relative;
       }
 
-      #selected-mode {
+      .dropdown-button {
         padding: 4px 8px;
         border: 1px solid var(--color-button-border);
         border-radius: 8px;
@@ -381,7 +411,6 @@
         flex-direction: column;
         z-index: 1000;
         cursor: pointer;
-        -webkit-backdrop-filter: var(--glass-effect);
         backdrop-filter: var(--glass-effect);
       }
 
@@ -394,6 +423,30 @@
 
       .dropdown-container span:hover {
         background-color: var(--color-button-bg-hover);
+      }
+
+      #ai-model .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      #api-key .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      #api-key-input {
+        background-color: var(--color-input-bg);
+        border: 1px solid var(--color-input-border);
+        border-radius: 8px;
+        padding: 4px 4px;
+        color: var(--color-input);
+        font-size: smaller;
+        width: 50%;
       }
 
       .popup #getAnswerButton {
@@ -517,6 +570,10 @@
       .popup .range .rangeInput:focus {
         outline: none;
       }
+
+      :focus {
+        outline: none;
+      }
       `,
     },
 
@@ -534,25 +591,19 @@
       document.querySelector(".popup").classList.toggle("active");
     },
 
-    makeDraggable(element) {
+    makeDraggable(element, dragHandle = null) {
       let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
 
-      // Desktop
-      element.onmousedown = dragMouseDown;
-      // Mobile
-      element.ontouchstart = dragTouchStart;
+      const handle = dragHandle || element.querySelector(".topbar") || element;
+
+      handle.onmousedown = dragMouseDown;
+      handle.ontouchstart = dragTouchStart;
 
       function dragMouseDown(e) {
-        if (
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA" ||
-          e.target.tagName === "BUTTON" ||
-          e.target.isContentEditable
-        )
-          return;
+        if (e.target.classList.contains("status")) return;
 
         e.preventDefault();
         pos3 = e.clientX;
@@ -562,13 +613,7 @@
       }
 
       function dragTouchStart(e) {
-        if (
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA" ||
-          e.target.tagName === "BUTTON" ||
-          e.target.isContentEditable
-        )
-          return;
+        if (e.target.classList.contains("status")) return;
 
         e.preventDefault();
         const touch = e.touches[0];
@@ -643,15 +688,30 @@
       }
 
       // Solve Mode
-      const modeButton = document.getElementById("selected-mode");
-      const dropdownContainer = document.querySelector(".dropdown-container");
-      const modeOptions = dropdownContainer.querySelectorAll("span");
+      const solveModeButton = document.querySelector("#selected-solve-mode");
+      const solveModeDropdown = document.querySelector("#solve-mode-dropdown");
+      const solveModeOptions = solveModeDropdown.querySelectorAll("span");
 
-      modeOptions.forEach((option) => {
+      solveModeOptions.forEach((option) => {
         option.addEventListener("click", () => {
-          modeButton.textContent = option.textContent;
+          solveModeButton.textContent = option.textContent;
           term.data.updateSetting(
             "autoSolve.subSettings.mode",
+            option.textContent.toLowerCase()
+          );
+        });
+      });
+
+      // Ai Model
+      const aiModelButton = document.querySelector("#selected-ai-model");
+      const aiModelDropdown = document.querySelector("#ai-model-dropdown");
+      const aiModelOptions = aiModelDropdown.querySelectorAll("span");
+
+      aiModelOptions.forEach((option) => {
+        option.addEventListener("click", () => {
+          aiModelButton.textContent = option.textContent;
+          term.data.updateSetting(
+            "autoSolve.subSettings.model",
             option.textContent.toLowerCase()
           );
         });
