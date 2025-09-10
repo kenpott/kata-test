@@ -1011,16 +1011,19 @@ Analyze the question carefully and determine which response type is most appropr
           );
           const rawData = JSON.parse(event.data.response);
 
-          const parseResponse = await term.fetch("https://term-worker.buyterm-vip.workers.dev/parse", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data: rawData,
-              type: dataType, // Will be "pose"
-            }),
-          });
+          const parseResponse = await term.fetch(
+            "https://term-worker.buyterm-vip.workers.dev/parse",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                data: rawData,
+                type: dataType,
+              }),
+            }
+          );
 
           const parseResult = await parseResponse.json();
           let questionData;
@@ -1048,16 +1051,19 @@ Analyze the question carefully and determine which response type is most appropr
         try {
           const rawData = JSON.parse(event.data.response);
 
-          const parseResponse = await term.fetch("https://term-worker.buyterm-vip.workers.dev/parse", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data: rawData,
-              type: "tally",
-            }),
-          });
+          const parseResponse = await term.fetch(
+            "https://term-worker.buyterm-vip.workers.dev/parse",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                data: rawData,
+                type: "tally",
+              }),
+            }
+          );
 
           const parseResult = await parseResponse.json();
           let tallyData;
@@ -1131,7 +1137,9 @@ Analyze the question carefully and determine which response type is most appropr
 
   term.utils = {
     async captureScreenshot(element) {
-      const canvas = await html2canvas(element);
+      const canvas = await html2canvas(element, {
+        logging: false,
+      });
       const base64Data = canvas.toDataURL("image/png");
       console.log("Captured Screenshot: ", base64Data);
       return base64Data;
@@ -1173,6 +1181,19 @@ Analyze the question carefully and determine which response type is most appropr
               parts: [{ text: `${prompt} ${JSON.stringify(inputData)}` }],
             },
           ],
+          generationConfig: {
+            response_mime_type: "application/json",
+            response_schema: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                answer: {
+                  oneOf: [{ type: "number" }, { type: "string" }],
+                },
+              },
+              required: ["type", "answer"],
+            },
+          },
         };
       } else {
         const base64Clean = inputData.replace(/^data:image\/\w+;base64,/, "");
@@ -1186,6 +1207,19 @@ Analyze the question carefully and determine which response type is most appropr
               ],
             },
           ],
+          generationConfig: {
+            response_mime_type: "application/json",
+            response_schema: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                answer: {
+                  oneOf: [{ type: "number" }, { type: "string" }],
+                },
+              },
+              required: ["type", "answer"],
+            },
+          },
         };
       }
 
@@ -1199,7 +1233,17 @@ Analyze the question carefully and determine which response type is most appropr
         }
       );
 
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
       const result = await response.json();
+
+      // Check for API errors
+      if (result.error) {
+        throw new Error(`Gemini API error: ${result.error.message}`);
+      }
+
       const rawAnswer =
         result?.candidates?.[0]?.content?.parts
           ?.map((p) => p.text || "")
@@ -1207,7 +1251,7 @@ Analyze the question carefully and determine which response type is most appropr
           .join(" ")
           .trim() || "No valid response";
 
-      // Parse the JSON to extract just the answer value
+      // With forced JSON response, this should now work reliably
       const parsedAnswer = JSON.parse(rawAnswer);
 
       if (term.data.settings.autoSolve.enabled === true) {
@@ -1218,6 +1262,9 @@ Analyze the question carefully and determine which response type is most appropr
       return parsedAnswer;
     } catch (error) {
       console.error("Solve error:", error);
+      term.ui.notifications.show(`Error: ${error.message}`, {
+        temporary: false,
+      });
       throw error;
     } finally {
       term.data.setSolving(false);
