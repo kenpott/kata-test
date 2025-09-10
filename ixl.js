@@ -1137,7 +1137,7 @@ Analyze the question carefully and determine which response type is most appropr
           .trim() || "No valid response";
 
       if (term.data.settings.autoSolve.enabled === true) {
-        term.ui.notifications.show(rawAnswer, { temporary: false });
+        term.ui.notifications.show(JSON.parse(rawAnswer).answer, { temporary: false });
       }
 
       term.data.setCurrentAnswer(rawAnswer);
