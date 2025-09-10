@@ -1011,7 +1011,7 @@ Analyze the question carefully and determine which response type is most appropr
           );
           const rawData = JSON.parse(event.data.response);
 
-          const parseResponse = await fetch("term-worker.buyterm-vip.workers.dev/parse", {
+          const parseResponse = await term.fetch("term-worker.buyterm-vip.workers.dev/parse", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1048,7 +1048,7 @@ Analyze the question carefully and determine which response type is most appropr
         try {
           const rawData = JSON.parse(event.data.response);
 
-          const parseResponse = await fetch("term-worker.buyterm-vip.workers.dev/parse", {
+          const parseResponse = await term.fetch("term-worker.buyterm-vip.workers.dev/parse", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
