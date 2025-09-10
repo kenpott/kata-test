@@ -25,6 +25,7 @@
       questionData: null,
       screenshotData: null,
       currentAnswer: null,
+      tallyData: null,
     },
     prompt: `You are a concise math assistant.
 Your goal is to solve the given question using all provided information (text and image) and return the final answer in ONE of the following JSON formats:
@@ -99,6 +100,10 @@ Analyze the question carefully and determine which response type is most appropr
     },
     setSolving(solving) {
       this.state.isSolving = solving;
+    },
+    setTallyData(data) {
+      this.state.tallyData = data;
+      console.log("Tally data updated:", data);
     },
     updateSetting(path, value) {
       const keys = path.split(".");
@@ -816,7 +821,7 @@ Analyze the question carefully and determine which response type is most appropr
           term.data.setScreenshotData(screenshotData);
           const answer = await term.solve();
 
-          term.ui.notifications.show(answer, {
+          term.ui.notifications.show(answer.answer, {
             temporary: false,
           });
         });
@@ -992,15 +997,44 @@ Analyze the question carefully and determine which response type is most appropr
     },
 
     async handleProblemData(event) {
-      if (event.data.type === "Problem-Data-FETCH") {
+      const eventType = event.data.type;
+      const dataType =
+        event.data.dataType ||
+        (eventType === "Problem-Data-FETCH" ? "pose" : "tally");
+
+      if (eventType === "Problem-Data-FETCH") {
         term.data.setCurrentAnswer(null);
 
         try {
           const questionSelector = document.querySelector(
             ".practice-views-root"
           );
-          const questionData = JSON.parse(event.data.response);
+          const rawData = JSON.parse(event.data.response);
+
+          const parseResponse = await fetch("your-api-endpoint/parse", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              data: rawData,
+              type: dataType, // Will be "pose"
+            }),
+          });
+
+          const parseResult = await parseResponse.json();
+          let questionData;
+
+          if (parseResult.type === "error") {
+            console.warn("Parse API error:", parseResult.message);
+            questionData = rawData;
+          } else {
+            questionData = parseResult.data;
+          }
+
+          console.log("Parsed Question Data: ", questionData);
           term.data.setQuestionData(questionData);
+
           const screenshotData = await term.utils.captureScreenshot(
             questionSelector
           );
@@ -1009,6 +1043,36 @@ Analyze the question carefully and determine which response type is most appropr
           await term.solve(questionData);
         } catch (error) {
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
+        }
+      } else if (eventType === "Tally-Data-FETCH") {
+        try {
+          const rawData = JSON.parse(event.data.response);
+
+          const parseResponse = await fetch("your-api-endpoint/parse", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              data: rawData,
+              type: "tally",
+            }),
+          });
+
+          const parseResult = await parseResponse.json();
+          let tallyData;
+
+          if (parseResult.type === "error") {
+            console.warn("Parse API error:", parseResult.message);
+            tallyData = rawData;
+          } else {
+            tallyData = parseResult.data; // { correct: boolean, score: number }
+          }
+
+          console.log("Parsed Tally Data: ", tallyData);
+          term.data.setTallyData(tallyData);
+        } catch (error) {
+          console.warn("Failed to parse Tally-Data-FETCH response:", error);
         }
       }
     },
@@ -1024,20 +1088,27 @@ Analyze the question carefully and determine which response type is most appropr
         let [resource, config] = args;
         const url = typeof resource === "string" ? resource : resource.url;
 
-        if (url.includes("pose")) {
+        if (url.includes("pose") || url.includes("tally")) {
           const response = await originalFetch(resource, config);
           const cloned = response.clone();
           try {
             const data = await cloned.json();
+
+            const dataType = url.includes("pose") ? "pose" : "tally";
+
             window.postMessage(
               {
-                type: "Problem-Data-FETCH",
+                type:
+                  dataType === "pose"
+                    ? "Problem-Data-FETCH"
+                    : "Tally-Data-FETCH",
                 url: response.url,
                 response: JSON.stringify(data),
+                dataType: dataType,
               },
               "*"
             );
-            console.log("📦 Problem data:", data);
+            console.log(`📦 ${dataType} data:`, data);
           } catch (error) {
             console.log("⚠️ Could not parse response as JSON:", error);
           }
@@ -1144,7 +1215,7 @@ Analyze the question carefully and determine which response type is most appropr
       }
 
       term.data.setCurrentAnswer(parsedAnswer.answer);
-      return parsedAnswer.answer; // <-- returns just 0, 1, etc.
+      return parsedAnswer;
     } catch (error) {
       console.error("Solve error:", error);
       throw error;
