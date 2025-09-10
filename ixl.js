@@ -1060,6 +1060,7 @@ Analyze the question carefully and determine which response type is most appropr
               body: JSON.stringify({
                 data: rawData,
                 type: "tally",
+                platform: "ixl",
               }),
             }
           );
