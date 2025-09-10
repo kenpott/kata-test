@@ -1013,7 +1013,6 @@
     }
 
     const mode = term.data.settings.autoSolve.subSettings.mode;
-
     const isFastMode = mode === "fast";
     const inputData = isFastMode
       ? term.data.state.questionData
@@ -1022,7 +1021,7 @@
     if (!inputData) {
       console.warn(`No data available for ${mode} mode`);
       term.ui.notifications.show(
-        `No ${mode === "fast" ? "question" : "accurate"} data available`
+        `No ${isFastMode ? "question" : "accurate"} data available`
       );
       return;
     }
@@ -1031,32 +1030,45 @@
       term.data.setSolving(true);
       term.ui.notifications.show(`[Mode: ${mode}] Solving...`);
 
-      const payload = {
-        data: isFastMode ? JSON.stringify(inputData) : String(inputData),
-        platformType: "ixl",
-        dataType: isFastMode ? "json" : "base64",
-      };
+      const prompt = await getPrompt("ixl");
 
-      console.log("payload: ", payload);
+      const finalPrompt = isFastMode
+        ? `${prompt} ${JSON.stringify(inputData)}`
+        : `${prompt}\nSolve the problem from this screenshot:\n${String(
+            inputData
+          )}`;
 
-      const result = await term.fetch(
-        "https://term-worker.buyterm-vip.workers.dev/solve",
+      const userApiKey = term.data.settings.autoSolve.subSettings.apiKey;
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userApiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: finalPrompt }],
+              },
+            ],
+          }),
         }
       );
-      const parsed = await result.json();
+
+      const result = await response.json();
+      const rawAnswer =
+        result?.candidates?.[0]?.content?.parts
+          ?.map((p) => p.text || "")
+          .filter((t) => t.trim().length > 0)
+          .join(" ")
+          .trim() || "No valid response";
 
       if (term.data.settings.autoSolve.enabled === true) {
-        term.ui.notifications.show(parsed.answer, {
-          temporary: false,
-        });
+        term.ui.notifications.show(rawAnswer, { temporary: false });
       }
 
-      term.data.setCurrentAnswer(parsed.answer);
-      return parsed.answer;
+      term.data.setCurrentAnswer(rawAnswer);
+      return rawAnswer;
     } catch (error) {
       console.error("Solve error:", error);
       throw error;
