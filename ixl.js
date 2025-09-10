@@ -998,10 +998,6 @@ Analyze the question carefully and determine which response type is most appropr
 
     async handleProblemData(event) {
       const eventType = event.data.type;
-      const dataType =
-        event.data.dataType ||
-        (eventType === "Problem-Data-FETCH" ? "pose" : "tally");
-
       if (eventType === "Problem-Data-FETCH") {
         term.data.setCurrentAnswer(null);
 
@@ -1020,8 +1016,6 @@ Analyze the question carefully and determine which response type is most appropr
               },
               body: JSON.stringify({
                 data: rawData,
-                type: dataType,
-                platform: "ixl",
               }),
             }
           );
@@ -1060,8 +1054,6 @@ Analyze the question carefully and determine which response type is most appropr
               },
               body: JSON.stringify({
                 data: rawData,
-                type: dataType,
-                platform: "ixl",
               }),
             }
           );
