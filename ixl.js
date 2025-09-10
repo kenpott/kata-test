@@ -26,6 +26,67 @@
       screenshotData: null,
       currentAnswer: null,
     },
+    prompt: `You are a concise math assistant.
+Your goal is to solve the given question using all provided information (text and image) and return the final answer in ONE of the following JSON formats:
+
+1. Text Answer:
+{
+  "type": "text",
+  "answer": "<answer text>"
+}
+
+2. Numeric Answer:
+{
+  "type": "number",
+  "answer": <answer number>
+}
+
+3. Single Choice (Multiple Choice Index):
+{
+  "type": "single_choice",
+  "answer": <answer index>
+}
+
+4. Multiple Inputs (Multiple Indexed Answers):
+{
+  "type": "multi_input",
+  "answer": {
+    "0": <answer0>,
+    "1": <answer1>
+  }
+}
+
+5. Multiple Selection (Select All That Apply):
+{
+  "type": "multi_select",
+  "answer": {
+    "0": true,
+    "1": false,
+    "2": true
+  }
+}
+
+6. Drag-and-Drop:
+{
+  "type": "drag_drop",
+  "answer": {
+    "0": 0,
+    "1": 1,
+    "2": 0
+  }
+}
+
+Rules:
+- Return ONLY a single valid JSON object - no markdown code blocks, no extra text.
+- Always ensure the JSON is valid and parseable.
+- For single_choice: use the zero-based index (0, 1, 2, etc.) of the correct answer choice.
+- For multi_input: provide separate answers for each input field using string keys ("0", "1", etc.).
+- For multi_select: use boolean values (true/false) for each option, include ALL options.
+- For drag_drop: map each draggable item index to its target box index.
+- Never combine multiple answers into a single string (e.g., don't use "5/7" for two separate inputs).
+- All object keys must be strings of the index numbers starting from "0".
+
+Analyze the question carefully and determine which response type is most appropriate based on the question format.`,
 
     setQuestionData(data) {
       this.state.questionData = data;
@@ -1030,13 +1091,32 @@
       term.data.setSolving(true);
       term.ui.notifications.show(`[Mode: ${mode}] Solving...`);
 
-      const prompt = await getPrompt("ixl");
+      const prompt = term.data.prompt;
+      let requestBody;
 
-      const finalPrompt = isFastMode
-        ? `${prompt} ${JSON.stringify(inputData)}`
-        : `${prompt}\nSolve the problem from this screenshot:\n${String(
-            inputData
-          )}`;
+      if (isFastMode) {
+        requestBody = {
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `${prompt} ${JSON.stringify(inputData)}` }],
+            },
+          ],
+        };
+      } else {
+        const base64Clean = inputData.replace(/^data:image\/\w+;base64,/, "");
+        requestBody = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: `${prompt}\nSolve the problem from this screenshot:` },
+                { inline_data: { mime_type: "image/png", data: base64Clean } },
+              ],
+            },
+          ],
+        };
+      }
 
       const userApiKey = term.data.settings.autoSolve.subSettings.apiKey;
       const response = await fetch(
@@ -1044,14 +1124,7 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: finalPrompt }],
-              },
-            ],
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 
