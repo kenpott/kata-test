@@ -591,13 +591,13 @@
       document.querySelector(".popup").classList.toggle("active");
     },
 
-    makeDraggable(element, dragHandle = null) {
+    makeDraggable(element) {
       let pos1 = 0,
         pos2 = 0,
         pos3 = 0,
         pos4 = 0;
 
-      const handle = dragHandle || element.querySelector(".topbar") || element;
+      const handle = element.querySelector(".topbar") || element;
 
       handle.onmousedown = dragMouseDown;
       handle.ontouchstart = dragTouchStart;
