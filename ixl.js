@@ -1118,7 +1118,7 @@ Analyze the question carefully and determine which response type is most appropr
         };
       }
 
-      const userApiKey = term.data.autoSolve.subSettings.apikey;
+      const userApiKey = term.data.settings.autoSolve.subSettings.apikey;
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userApiKey}`,
         {
