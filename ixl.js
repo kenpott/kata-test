@@ -1136,12 +1136,15 @@ Analyze the question carefully and determine which response type is most appropr
           .join(" ")
           .trim() || "No valid response";
 
+      // Parse the JSON to extract just the answer value
+      const parsedAnswer = JSON.parse(rawAnswer);
+
       if (term.data.settings.autoSolve.enabled === true) {
-        term.ui.notifications.show(JSON.parse(rawAnswer).answer, { temporary: false });
+        term.ui.notifications.show(parsedAnswer.answer, { temporary: false });
       }
 
-      term.data.setCurrentAnswer(rawAnswer);
-      return rawAnswer;
+      term.data.setCurrentAnswer(parsedAnswer.answer);
+      return parsedAnswer.answer; // <-- returns just 0, 1, etc.
     } catch (error) {
       console.error("Solve error:", error);
       throw error;
