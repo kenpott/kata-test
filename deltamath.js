@@ -673,6 +673,19 @@
         });
       });
 
+      // Api Key Input
+      const apiKeyInput = document.querySelector("#api-key-input");
+      apiKeyInput.addEventListener("input", (event) => {
+        let timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          term.data.updateSetting(
+            "autoSolve.subSettings.apikey",
+            event.target.value
+          );
+        }, 250);
+      });
+
       // Get answer button
       const getAnswerButton = document.querySelector("#getAnswerButton");
       if (getAnswerButton) {

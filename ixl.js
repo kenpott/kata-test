@@ -660,6 +660,18 @@
         }
       });
 
+      document.querySelectorAll(".setting").forEach((setting) => {
+        setting.addEventListener("click", () => {
+          let sibling = setting.nextElementSibling;
+          while (sibling && !sibling.classList.contains("setting")) {
+            if (sibling.classList.contains("subSettings")) {
+              sibling.classList.toggle("active");
+            }
+            sibling = sibling.nextElementSibling;
+          }
+        });
+      });
+
       // Auto answer toggle
       const autoAnswerToggle = document.querySelector("#autoAnswerCheckbox");
       if (autoAnswerToggle) {
@@ -715,6 +727,19 @@
             option.textContent.toLowerCase()
           );
         });
+      });
+
+      // Api Key Input
+      const apiKeyInput = document.querySelector("#api-key-input");
+      apiKeyInput.addEventListener("input", (event) => {
+        let timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          term.data.updateSetting(
+            "autoSolve.subSettings.apikey",
+            event.target.value
+          );
+        }, 250);
       });
 
       // Get answer button
