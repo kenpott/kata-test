@@ -1043,7 +1043,6 @@ Analyze the question carefully and determine which response type is most appropr
           );
           term.data.setScreenshotData(screenshotData);
           console.log("Question data received");
-          await term.solve(questionData);
         } catch (error) {
           console.warn("Failed to parse Problem-Data-FETCH response:", error);
         }
