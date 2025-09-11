@@ -626,6 +626,10 @@ Analyze the question carefully and determine which response type is most appropr
         box-shadow: -200px 0 0 200px var(--slider-fill-color);
       }
 
+      .popup > * {
+      user-select: none;
+      }
+
       .popup .range .rangeInput::-moz-range-thumb {
         width: 0;
         height: 0;
